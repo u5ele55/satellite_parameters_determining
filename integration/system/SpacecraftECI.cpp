@@ -2,14 +2,9 @@
 
 #include <cmath>
 
-SpacecraftECI::SpacecraftECI(double mu, double omega, const Vector &initialPosition, const Vector &initialSpeed)
-    : mu(mu), omega(omega), initialState(6)
-{
-    for (int i = 0; i < 3; i ++) {
-        initialState[2 * i] = initialSpeed[i];
-        initialState[2 * i + 1] = initialPosition[i];
-    }
-}
+SpacecraftECI::SpacecraftECI(double mu, double omega, const Vector &inittialState)
+    : mu(mu), omega(omega), initialState(initialState)
+{}
 
 void SpacecraftECI::f(Vector &state, double time) const {
     double 

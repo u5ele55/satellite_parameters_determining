@@ -2,7 +2,7 @@
 
 #include <random>
 
-#include "RadioTelescopeSystem.hpp"
+#include "TelescopeControl.hpp"
 
 class DesignationsNoiseApplier
 {
@@ -11,9 +11,8 @@ private:
     std::mt19937 gen; 
     std::normal_distribution<double> distanceNoise;
     std::normal_distribution<double> angleNoise; 
-    RadioTelescopeSystem &radioSystem;
+    TelescopeControl &radioControl;
 public:
-    DesignationsNoiseApplier(RadioTelescopeSystem &radioSystem, double distanceMSE, double angleMSE);
-    std::vector<Vector> targetTelescopes(const Vector& ecef);
-    ~DesignationsNoiseApplier();
+    DesignationsNoiseApplier(TelescopeControl &radioControl, double distanceMSE, double angleMSE);
+    Vector targetTelescope(const Vector& ecef);
 };

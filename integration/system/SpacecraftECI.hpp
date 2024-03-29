@@ -8,7 +8,7 @@ public:
     /// @param omega earth angular speed
     /// @param initialPosition initial position of SC
     /// @param initialSpeed initial speed of SC
-    SpacecraftECI(double mu, double omega, const Vector& initialPosition, const Vector& initialSpeed);
+    SpacecraftECI(double mu, double omega, const Vector& initialState);
 
     void f(Vector &state, double time) const;
 
