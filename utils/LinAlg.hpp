@@ -10,4 +10,6 @@ public:
     static Vector projectionOnPlane(const Vector& src, const Vector& normal);
 
     static Vector projectionOnEllipse(const Vector& r, double a, double b, double c);
+
+    static void toRad(double& deg);
 };

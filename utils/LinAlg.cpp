@@ -57,3 +57,8 @@ Vector LinAlg::projectionOnEllipse(const Vector &r, double a, double b, double c
 
     return r * t;
 }
+
+void LinAlg::toRad(double &deg)
+{
+    deg *= M_PI / 180;
+}
