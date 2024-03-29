@@ -12,6 +12,18 @@ Matrix::Matrix(std::pair<int, int> nm)
     : Matrix(nm.first, nm.second)
 {}
 
+Matrix Matrix::transposed() const
+{
+    Matrix result(nm.second, nm.first);
+
+    for(int i = 0; i < nm.first; i ++) {
+        for(int j = 0; j < nm.second; j ++) {
+            result[j][i] = at(i)[j];
+        }
+    }
+    return result;
+}
+
 Vector &Matrix::at(int y)
 {
     return rows[y];
@@ -95,4 +107,15 @@ Matrix Matrix::operator*(const Matrix &mtx) const
         }
     }
     return result;
+}
+
+std::ostream &operator<<(std::ostream &stream, const Matrix &mtx)
+{
+    stream << "[\n";
+    for (int i = 0; i < mtx.nm.first; i++) {
+        stream << '\t' << mtx.at(i) << '\n';
+    }
+    stream << "]";
+
+    return stream;
 }

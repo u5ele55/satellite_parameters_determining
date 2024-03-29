@@ -10,6 +10,8 @@ public:
     Matrix(int rows, int cols);
     Matrix(std::pair<int, int> nm);
 
+    Matrix transposed() const;
+
     Vector &at(int y);
     Vector at(int y) const;
 
@@ -30,4 +32,5 @@ public:
 
     Matrix operator*(const Matrix &mtx) const;
 
+    friend std::ostream &operator<<(std::ostream &stream, const Matrix &mtx);
 };
