@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-SpacecraftECI::SpacecraftECI(double mu, double omega, const Vector &inittialState)
+SpacecraftECI::SpacecraftECI(double mu, double omega, const Vector &initialState)
     : mu(mu), omega(omega), initialState(initialState)
 {}
 
