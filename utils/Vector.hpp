@@ -16,6 +16,8 @@ public:
     Vector(const Vector &other);
     Vector(Vector &&other);
 
+    ~Vector();
+
     int size() const;
 
     double &at(int y);

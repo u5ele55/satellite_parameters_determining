@@ -12,15 +12,6 @@ Vector::Vector(int n) : n(n) {
     }
 }
 
-
-double &Vector::at(int y) {
-    return this->data[y];
-}
-
-double Vector::at(int y) const {
-    return this->data[y];
-}
-
 Vector::Vector(std::initializer_list<double> list)
         : Vector(list.size()) {
     int i = 0;
@@ -49,6 +40,19 @@ Vector::Vector(Vector &&other)
     for (int i = 0; i < other.n; i++) {
         at(i) = other.at(i);
     }
+}
+
+Vector::~Vector()
+{
+    delete[] data;
+}
+
+double &Vector::at(int y) {
+    return this->data[y];
+}
+
+double Vector::at(int y) const {
+    return this->data[y];
 }
 
 int Vector::size() const {
