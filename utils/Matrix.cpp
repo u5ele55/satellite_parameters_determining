@@ -75,7 +75,7 @@ Vector Matrix::operator*(const Vector &vec) const
     if(nm.second != vec.size()) {
         throw std::runtime_error("Matrix::operator*(Vector): sizes do not match");
     }
-    Vector result(vec.size());
+    Vector result(nm.first);
     for (int i = 0; i < nm.first; i ++) {
         result[i] = at(i).dot(vec);
     }
