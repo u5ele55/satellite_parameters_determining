@@ -4,10 +4,13 @@
 
 class Core
 {
+private:
+    std::vector<Vector> measurements;
+    std::vector<double> times;
+
+    
 public:
-    Core();
-
     void start();
-
-    ~Core();
+private:   
+    void generateMeasurements();
 };
