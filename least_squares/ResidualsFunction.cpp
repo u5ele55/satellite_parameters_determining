@@ -45,5 +45,6 @@ Vector ResidualsFunction::operator()(const Vector& x)
 
         const Vector& designation = radioControl.targetTelescope(ecef);
         Vector r = designation - measurements[i];
+        // todo: how to calculate residuals?? its not a single measurement
     }
 }
