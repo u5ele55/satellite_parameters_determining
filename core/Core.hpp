@@ -12,5 +12,5 @@ private:
 public:
     void start();
 private:   
-    void generateMeasurements();
+    void generateMeasurements(TaskParameters params);
 };
