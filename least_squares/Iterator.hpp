@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Vector.hpp"
+#include "global/TaskParameters.hpp"
+#include "Function/Function.hpp"
 
 class Iterator
 {
@@ -8,9 +10,19 @@ private:
     Vector initialGuess;
     Vector q;
     std::vector<Vector> measurements;
-    Vector MSEs;
+    std::vector<double> times;
+    // Vector MSEs;
+    std::vector<Function<const Vector&, Vector>*> resFunctions;
+    TaskParameters params;
+    Vector diagonalK;
 public:
-    Iterator(std::vector<Vector> measurements, Vector initialGuess, Vector MSEs);
+    Iterator(
+        std::vector<Vector> measurements, 
+        std::vector<double> times, 
+        Vector initialGuess, 
+        TaskParameters params
+    );
+    ~Iterator();
     Vector makeIteration();
     
 };

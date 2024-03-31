@@ -10,6 +10,7 @@
 #include "integration/solver/RK4Solver.hpp"
 #include "integration/system/SpacecraftECI.hpp"
 #include "least_squares/ResidualsFunctionGenerator.hpp"
+#include "least_squares/Iterator.hpp"
 
 #include <iostream>
 void Core::start()
@@ -22,13 +23,15 @@ void Core::start()
     LinAlg::toRad(telescopeBLH[1]);
     Vector initialPosition = {6871257.864, 0.0, 0.0};
     Vector initialSpeed = {0.0, 3810.1125727278977, 6599.308558521686};
+    double angleSecond = M_PI/(180 * 3600);
 
     auto parameters = TaskParameters(
         telescopeBLH, 
         7 * M_PI / 180,
         JD,
         initialPosition[0], initialPosition[1], initialPosition[2],
-        initialSpeed[0], initialSpeed[1], initialSpeed[2] 
+        initialSpeed[0], initialSpeed[1], initialSpeed[2],
+        100, 30 * angleSecond 
     );
 
     // generateMeasurements()
@@ -37,22 +40,37 @@ void Core::start()
         std::cout << times[i] << " " << measurements[i] << '\n';
     }
     // "worsen" initial state
-    // -
+    Vector initialGuess = {
+        parameters.vx * 0.99,
+        parameters.x + 800,
+        parameters.vy * 1.01,
+        parameters.y - 100,
+        parameters.vz * 0.987,
+        parameters.z + 200,
+    };
     // try initial approximation 
-    ResidualsFunctionGenerator gen(measurements, times, parameters);
+    ResidualsFunctionGenerator gen(measurements, times, &parameters);
     auto ress = gen.generate();
     // .calculateResiduals()
     // make step of gradient descent / newton method
-    // .step()
+    Iterator iterator(
+        measurements, 
+        times,
+        initialGuess, 
+        parameters
+    );
+    std::cout << "Iteration...\n";
+    iterator.makeIteration();
+
+    
     // if tol < eps end
 }
 
 void Core::generateMeasurements(TaskParameters params)
 {
-    double angleSecond = M_PI/(180 * 3600);
     RadioTelescope telescope(params.telescopeBLH, params.tsVisionAngle);
     TelescopeControl radioControl(telescope);
-    DesignationsNoiseApplier desNoiseApplier(radioControl, 100, 30 * angleSecond);
+    DesignationsNoiseApplier desNoiseApplier(radioControl, params.distMSE, params.angleMSE);
 
     auto *system = new SpacecraftECI(
         Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
