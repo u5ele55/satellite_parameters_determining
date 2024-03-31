@@ -9,9 +9,9 @@ class ResidualsFunctionGenerator
 private:
     std::vector<Vector> measurements;
     std::vector<double> times;
-    TaskParameters params;
+    TaskParameters *params;
 public:
-    ResidualsFunctionGenerator(std::vector<Vector> measurements, std::vector<double> times, TaskParameters params);
+    ResidualsFunctionGenerator(std::vector<Vector> measurements, std::vector<double> times, TaskParameters *params);
 
     std::vector<Function<const Vector &, Vector>*> generate();
 };

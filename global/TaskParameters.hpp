@@ -12,12 +12,15 @@ struct TaskParameters {
         double z,
         double vx,
         double vy,
-        double vz
+        double vz,
+        double distMSE,
+        double angleMSE
     ) : telescopeBLH(telescopeBLH),
         tsVisionAngle(tsVisionAngle),
         JD(JD),
         unixTimestamp((JD - 2440587.5) * Constants::Earth::SECONDS_IN_DAY),
-        x(x), y(y), z(z), vx(vx), vy(vy), vz(vz), initialState(6)
+        x(x), y(y), z(z), vx(vx), vy(vy), vz(vz), initialState(6),
+        distMSE(distMSE), angleMSE(angleMSE)
     {
         initialState = {vx, x, vy, y, vz, z};
     };
@@ -33,4 +36,6 @@ struct TaskParameters {
     double vx;
     double vy;
     double vz;
+    double distMSE;
+    double angleMSE;
 };
