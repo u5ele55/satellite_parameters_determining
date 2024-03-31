@@ -62,3 +62,26 @@ void LinAlg::toRad(double &deg)
 {
     deg *= M_PI / 180;
 }
+#include <iostream>
+Matrix LinAlg::choleskyDecomposition(const Matrix &A)
+{
+    if (A.size().first != A.size().second) {
+        throw std::invalid_argument("CholeskyMaster::choleskyDecomposition: Wrong sizes");
+    }
+    int n = A.size().first;
+    auto ans = Matrix(n, n);
+    for (int i = 0; i < n; i++) {
+        for (int k = 0; k < i + 1; k++) {
+            long double sum = 0;
+            for (int j = 0; j < k; j++) {
+                sum = std::fma(ans[i][j], ans[k][j], sum);
+            }
+            if (i == k) {
+                ans[i][k] = sqrt(A[i][i] - sum);
+            } else {
+                ans[i][k] = (A[i][k] - sum) / ans[k][k];
+            }
+        }
+    }
+    return ans;
+}

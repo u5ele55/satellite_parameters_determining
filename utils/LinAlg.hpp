@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector.hpp"
+#include "Matrix.hpp"
 
 class LinAlg {
 public:
@@ -12,4 +13,6 @@ public:
     static Vector projectionOnEllipse(const Vector& r, double a, double b, double c);
 
     static void toRad(double& deg);
+
+    static Matrix choleskyDecomposition(const Matrix &A);
 };
