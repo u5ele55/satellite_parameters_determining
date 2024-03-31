@@ -50,16 +50,12 @@ double CubicSplinesInterpolation::operator()(double t)
     double mu = (t - x1) / (x2 - x1);
     double mu2 = mu*mu;
 
-    // std::cout << "a: ";
     for(int i = 0; i < 4; i ++) {
         a[i] = 0; 
         for (int j = 0; j < 4; j ++) {
             a[i] += y_near[j] * coefs[i][j];
-            // std::cout << y_near[i] << '*' << coefs[i][j] << ' ';
         }
-        // std::cout << '=' << a[i] << ' ';
     }
-    // std::cout << '\n';
 
     return a[0]*mu*mu2 + a[1]*mu2 + a[2]*mu + a[3];
 }
