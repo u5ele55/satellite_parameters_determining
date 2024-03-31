@@ -5,6 +5,7 @@ file(GLOB UTILS utils/*/*/*.cpp utils/*/*.cpp utils/*.cpp)
 file(GLOB GLBL global/*.cpp)
 file(GLOB CORE core/*.cpp)
 file(GLOB RADIOTELESCOPES radiotelescopes/*.cpp)
+file(GLOB LEAST_SQUARES least_squares/*.cpp)
 file(GLOB INTEGRATION integration/*/*.cpp)
 
 add_subdirectory(utils)
@@ -15,6 +16,7 @@ add_executable(run
     ${GLBL}
     ${CORE}
     ${RADIOTELESCOPES}
+    ${LEAST_SQUARES}
     ${INTEGRATION}
     )
 

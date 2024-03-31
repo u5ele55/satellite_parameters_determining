@@ -5,14 +5,14 @@
 #include "global/TaskParameters.hpp"
 #include "integration/solver/AbstractSolver.hpp"
 
-class ResidualsFunction : public Function<Vector, const Vector&>
+class ResidualsFunction : public Function<const Vector&, Vector>
 {
 private:
-    std::vector<Vector> measurements;
-    std::vector<double> times;
-    TaskParameters params;
+    Vector measurement;
+    double time;
+    TaskParameters *params;
 public:
-    ResidualsFunction(std::vector<Vector> measurements, std::vector<double> times, TaskParameters params);
+    ResidualsFunction(Vector measurement, double time, TaskParameters *params);
 
-    Vector operator()(const Vector& x);
+    Vector operator()(const Vector& x) override;
 };

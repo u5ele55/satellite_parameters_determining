@@ -1,14 +1,15 @@
 #include "Core.hpp"
-#include "radiotelescopes/DesignationsNoiseApplier.hpp"
 #include "LinAlg.hpp"
 #include "Matrix.hpp"
 #include "coordinates.hpp"
 #include "time.hpp"
+
 #include "global/Constants.hpp"
+#include "global/TaskParameters.hpp"
+#include "radiotelescopes/DesignationsNoiseApplier.hpp"
 #include "integration/solver/RK4Solver.hpp"
 #include "integration/system/SpacecraftECI.hpp"
-
-#include "global/TaskParameters.hpp"
+#include "least_squares/ResidualsFunctionGenerator.hpp"
 
 #include <iostream>
 void Core::start()
@@ -35,9 +36,11 @@ void Core::start()
     for(int i = 0; i < measurements.size(); i ++) {
         std::cout << times[i] << " " << measurements[i] << '\n';
     }
-    // applyNoiseToState()
-    
+    // "worsen" initial state
+    // -
     // try initial approximation 
+    ResidualsFunctionGenerator gen(measurements, times, parameters);
+    auto ress = gen.generate();
     // .calculateResiduals()
     // make step of gradient descent / newton method
     // .step()
@@ -51,15 +54,10 @@ void Core::generateMeasurements(TaskParameters params)
     TelescopeControl radioControl(telescope);
     DesignationsNoiseApplier desNoiseApplier(radioControl, 100, 30 * angleSecond);
 
-    Vector initialState{
-        params.vx, params.x,
-        params.vy, params.y,
-        params.vz, params.z
-        };
     auto *system = new SpacecraftECI(
         Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
         Constants::Earth::ANGULAR_SPEED, 
-        initialState);
+        params.initialState);
     RK4Solver solver(system, 10); 
     Vector currentTime(7);
 
