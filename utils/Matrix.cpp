@@ -103,7 +103,8 @@ Matrix Matrix::operator*(const Matrix &mtx) const
     Matrix result(n, m);
     for (int i = 0; i < n; i ++) {
         for (int j = 0; j < m; j ++) {
-            result[i][j] += at(i)[j] * mtx[i][j];
+            for (int k = 0; k < nm.second; k ++)
+                result[i][j] += at(i)[k] * mtx[k][j];
         }
     }
     return result;
