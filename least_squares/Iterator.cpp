@@ -3,6 +3,8 @@
 #include "ResidualsFunctionGenerator.hpp"
 #include "PartialDerivativeMatrix.hpp"
 
+#include "LinAlg.hpp"
+
 Iterator::Iterator(
     std::vector<Vector> measurements, 
     std::vector<double> times,
@@ -41,14 +43,15 @@ Vector Iterator::makeIteration()
         PartialDerivativeMatrix genA(resFunctions[i], q, steps);
         Matrix A = genA.getMatrix();
         
-        std::cout << "A " << A << '\n';
         for(int i = 0; i < AT_Kinv.size().first; i ++) {
             for(int j = 0; j < AT_Kinv.size().second; j ++) {
                 AT_Kinv[i][j] = A[j][i] / diagonalK[j];
             }
         }
-        std::cout << "ATK " << AT_Kinv << '\n';
         std::cout << "ATK*A" << AT_Kinv * A << '\n';
+        auto L = LinAlg::choleskyDecomposition(AT_Kinv * A);
+        // std::cout << "L LT" << L * L.transposed() << '\n';
+        std::cout << "L " << L << '\n';
     }
 
     return q;
