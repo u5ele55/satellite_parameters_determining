@@ -15,4 +15,8 @@ public:
     static void toRad(double& deg);
 
     static Matrix choleskyDecomposition(const Matrix &A, double epsilon=1e-6);
+    
+    static Vector solveCholesky(const Matrix &L, const Vector & b);
+
+    static void solveCholesky(const Matrix &L, const Matrix &B, Matrix &answer);
 };

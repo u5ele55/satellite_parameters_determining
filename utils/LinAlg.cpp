@@ -66,7 +66,7 @@ void LinAlg::toRad(double &deg)
 Matrix LinAlg::choleskyDecomposition(const Matrix &A, double epsilon)
 {
     if (A.size().first != A.size().second) {
-        throw std::invalid_argument("CholeskyMaster::choleskyDecomposition: Wrong sizes");
+        throw std::invalid_argument("LinAlg::choleskyDecomposition: Wrong sizes");
     }
     int n = A.size().first;
     auto ans = Matrix(n, n);
@@ -84,4 +84,50 @@ Matrix LinAlg::choleskyDecomposition(const Matrix &A, double epsilon)
         }
     }
     return ans;
+}
+
+Vector LinAlg::solveCholesky(const Matrix &L, const Vector &b)
+{
+    int n = L.size().first;
+    if (n != b.size()) {
+        throw std::invalid_argument("LinAlg::solveCholesky(Vector): Wrong sizes");
+    }
+    auto y = Vector(n);
+
+    for (int i = 0; i < n; i++) {
+        double sum = 0;
+        for (int j = 0; j < i; j++) {
+            sum = std::fma(y[j], L[i][j], sum);
+        }
+        y[i] = (b[i] - sum) / L[i][i];
+    }
+
+    auto answer = Vector(n);
+    for (int i = n - 1; i >= 0; i--) {
+        double sum = 0;
+        for (int j = i + 1; j < n; j++) {
+            sum += answer[j] * L[j][i];
+        }
+        answer[i] = (y[i] - sum) / L[i][i];
+    }
+
+    return answer;
+}
+
+void LinAlg::solveCholesky(const Matrix &L, const Matrix &B, Matrix &answer)
+{
+    int n = L.size().first;
+    if (n != B.size().first
+        || n != answer.size().first
+        || answer.size().second != B.size().second) {
+        throw std::invalid_argument("LinAlg::solveCholesky(Matrix): Wrong sizes");
+    }
+
+    for (int i = 0; i < B.size().second; i++) {
+        Vector b(n);
+        for(int j = 0; j < B.size().first; j ++) {
+            b[j] = B[j][i];
+        }
+        answer.emplaceColumn(solveCholesky(L, b), i);
+    }
 }

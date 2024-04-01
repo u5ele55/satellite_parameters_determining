@@ -12,6 +12,8 @@ public:
 
     Matrix transposed() const;
 
+    void emplaceColumn(const Vector &column, int index);
+
     Vector &at(int y);
     Vector at(int y) const;
 

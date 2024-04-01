@@ -24,6 +24,16 @@ Matrix Matrix::transposed() const
     return result;
 }
 
+void Matrix::emplaceColumn(const Vector &column, int index)
+{
+    if (column.size() != nm.first || index >= nm.second || index < 0) {
+        throw std::invalid_argument("Matrix::emplaceColumn: Wrong sizes");
+    }
+    for (int i = 0; i < nm.first; i++) {
+        at(i)[index] = column[i];
+    }
+}
+
 Vector &Matrix::at(int y)
 {
     return rows[y];
