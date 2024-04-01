@@ -13,14 +13,14 @@ private:
     std::vector<double> times;
     // Vector MSEs;
     std::vector<Function<const Vector&, Vector>*> resFunctions;
-    TaskParameters params;
+    TaskParameters *params;
     Vector diagonalK;
 public:
     Iterator(
         std::vector<Vector> measurements, 
         std::vector<double> times, 
         Vector initialGuess, 
-        TaskParameters params
+        TaskParameters *params
     );
     ~Iterator();
     Vector makeIteration();

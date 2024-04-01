@@ -24,8 +24,7 @@ void Core::start()
     Vector initialPosition = {6871257.864, 0.0, 0.0};
     Vector initialSpeed = {0.0, 3810.1125727278977, 6599.308558521686};
     double angleSecond = M_PI/(180 * 3600);
-
-    auto parameters = TaskParameters(
+    auto parameters = new TaskParameters(
         telescopeBLH, 
         7 * M_PI / 180,
         JD,
@@ -35,22 +34,20 @@ void Core::start()
     );
 
     // generateMeasurements()
-    generateMeasurements(parameters);
+    generateMeasurements(*parameters);
     for(int i = 0; i < measurements.size(); i ++) {
         std::cout << times[i] << " " << measurements[i] << '\n';
     }
     // "worsen" initial state
     Vector initialGuess = {
-        parameters.vx * 0.99,
-        parameters.x + 800,
-        parameters.vy * 1.01,
-        parameters.y - 100,
-        parameters.vz * 0.987,
-        parameters.z + 200,
+        parameters->vx * 0.99,
+        parameters->x + 800,
+        parameters->vy * 1.01,
+        parameters->y - 100,
+        parameters->vz * 0.987,
+        parameters->z + 200,
     };
     // try initial approximation 
-    ResidualsFunctionGenerator gen(measurements, times, &parameters);
-    auto ress = gen.generate();
     // .calculateResiduals()
     // make step of gradient descent / newton method
     Iterator iterator(
@@ -87,7 +84,7 @@ void Core::generateMeasurements(TaskParameters params)
         Vector state = solver.solve(time);
         double x = state[1], y = state[3], z = state[5];
         long long t = i + params.unixTimestamp;
-
+        
         currentTime = unixToTime(t);
         Vector ecef = eci2ecef(x,y,z, currentTime);
 
@@ -99,6 +96,7 @@ void Core::generateMeasurements(TaskParameters params)
             break;
         }
         if (started) {
+            std::cout << "WAS " << ecef << '\n';
             measurements.push_back(designation);
             times.push_back(i);
         }

@@ -9,7 +9,7 @@ Iterator::Iterator(
     std::vector<Vector> measurements, 
     std::vector<double> times,
     Vector initialGuess, 
-    TaskParameters params
+    TaskParameters *params
 )   : initialGuess(initialGuess),
     params(params),
     measurements(measurements),
@@ -17,11 +17,11 @@ Iterator::Iterator(
     q(initialGuess),
     diagonalK(3)
 {
-    ResidualsFunctionGenerator resGen(measurements, times, &params);
+    ResidualsFunctionGenerator resGen(measurements, times, params);
     resFunctions = resGen.generate();
-    diagonalK[0] = params.distMSE * params.distMSE;
-    diagonalK[1] = params.angleMSE * params.angleMSE;
-    diagonalK[2] = params.angleMSE * params.angleMSE;
+    diagonalK[0] = params->distMSE * params->distMSE;
+    diagonalK[1] = params->angleMSE * params->angleMSE;
+    diagonalK[2] = params->angleMSE * params->angleMSE;
 }
 
 Iterator::~Iterator()
@@ -42,7 +42,7 @@ Vector Iterator::makeIteration()
     for(int i = 0; i < N; i ++) {
         PartialDerivativeMatrix genA(resFunctions[i], q, steps);
         Matrix A = genA.getMatrix();
-        
+        std::cout << "A " << A << '\n';
         for(int i = 0; i < AT_Kinv.size().first; i ++) {
             for(int j = 0; j < AT_Kinv.size().second; j ++) {
                 AT_Kinv[i][j] = A[j][i] / diagonalK[j];
@@ -50,8 +50,7 @@ Vector Iterator::makeIteration()
         }
         std::cout << "ATK*A" << AT_Kinv * A << '\n';
         auto L = LinAlg::choleskyDecomposition(AT_Kinv * A);
-        // std::cout << "L LT" << L * L.transposed() << '\n';
-        std::cout << "L " << L << '\n';
+        std::cout << "L LT " << L * L.transposed() << '\n';
     }
 
     return q;
