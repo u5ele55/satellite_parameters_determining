@@ -64,16 +64,12 @@ Vector Iterator::makeIteration()
         
         auto L = LinAlg::choleskyDecomposition(AT_Kinv_A, 1e-6);
         LinAlg::solveCholesky(L, E, AT_Kinv_A_inv);
-        firstSum = firstSum + AT_Kinv_A_inv;
+        // firstSum = firstSum + AT_Kinv_A_inv;
         Vector delta_r = genA.getShiftedMeasurement() - measurements[i];
-        secondSum = secondSum + AT_Kinv * delta_r;
+        // secondSum = secondSum + AT_Kinv * delta_r;
         q = q - AT_Kinv_A_inv * AT_Kinv * delta_r;
         // std::cout << "q: " <<  q << '\n';
     }
-    
-    // std::cout << "f: " << firstSum << '\n';
-    // std::cout << "s: " << secondSum << '\n'; 
-    // std::cout << "fs: " << firstSum * secondSum << '\n';
 
 
     return q;
