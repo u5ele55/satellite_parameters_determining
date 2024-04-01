@@ -131,3 +131,98 @@ void LinAlg::solveCholesky(const Matrix &L, const Matrix &B, Matrix &answer)
         answer.emplaceColumn(solveCholesky(L, b), i);
     }
 }
+
+int LinAlg::LUPDecompose(Matrix &A, Vector &P, double tol)
+{
+    int i, j, k, imax; 
+    double maxA, absA;
+    int N = A.size().first;
+    Vector row(N);
+
+    for (i = 0; i <= N; i++)
+        P[i] = i; //Unit permutation matrix, P[N] initialized with N
+
+    for (i = 0; i < N; i++) {
+        maxA = 0.0;
+        imax = i;
+        
+        for (k = i; k < N; k++) {
+            absA = fabs(A[k][i]);
+            if (maxA < absA) { 
+                maxA = absA;
+                imax = k;
+            }
+        }
+
+        if (maxA < tol) {
+            std::cout << maxA << " " << A[imax] << '\n';
+            for(int q = i; q < N; q ++) 
+                std::cout << A[q][i] << '-';
+            return 0; //failure, matrix is degenerate
+        }
+        if (imax != i) {
+            //pivoting P
+            j = P[i];
+            P[i] = P[imax];
+            P[imax] = j;
+
+            //pivoting rows of A
+            row = A[i];
+            A[i] = A[imax];
+            A[imax] = row;
+
+            //counting pivots starting from N (for determinant)
+            P[N]++;
+        }
+
+        for (j = i + 1; j < N; j++) {
+            A[j][i] /= A[i][i];
+
+            for (k = i + 1; k < N; k++)
+                A[j][k] -= A[j][i] * A[i][k];
+        }
+    }
+
+    return 1;
+}
+
+void LinAlg::LUPInvert(const Matrix &A, const Vector &P, Matrix &IA)
+{
+    int N = A.size().first;
+    for (int j = 0; j < N; j++) {
+        for (int i = 0; i < N; i++) {
+            IA[i][j] = P[i] == j ? 1.0 : 0.0;
+
+            for (int k = 0; k < i; k++)
+                IA[i][j] -= A[i][k] * IA[k][j];
+        }
+
+        for (int i = N - 1; i >= 0; i--) {
+            for (int k = i + 1; k < N; k++)
+                IA[i][j] -= A[i][k] * IA[k][j];
+
+            IA[i][j] /= A[i][i];
+        }
+    }
+}
+
+double LinAlg::LUPDeterminant(const Matrix &A, const Vector &P)
+{
+    int N = A.size().first;
+    double det = A[0][0];
+
+    for (int i = 1; i < N; i++)
+        det *= A[i][i];
+
+    return ((int)P[N] - N) % 2 == 0 ? det : -det;
+}
+
+Matrix LinAlg::Identity(int n)
+{
+    Matrix E(n, n);
+
+    for (int i = 0; i < n; i ++)
+        E[i][i] = 1;
+
+    return E;
+}

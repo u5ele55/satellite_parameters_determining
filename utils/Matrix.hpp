@@ -9,6 +9,8 @@ private:
 public:
     Matrix(int rows, int cols);
     Matrix(std::pair<int, int> nm);
+    Matrix(const Matrix& mtx);
+    Matrix& operator=(const Matrix& mtx);
 
     Matrix transposed() const;
 

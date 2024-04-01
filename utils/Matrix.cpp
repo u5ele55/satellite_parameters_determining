@@ -12,6 +12,21 @@ Matrix::Matrix(std::pair<int, int> nm)
     : Matrix(nm.first, nm.second)
 {}
 
+Matrix::Matrix(const Matrix &mtx)
+    : nm(mtx.nm)
+{
+    for(int i = 0; i < nm.first; i ++) {
+        this->rows.push_back(Vector(mtx[i]));
+    }
+}
+
+Matrix &Matrix::operator=(const Matrix &mtx)
+{
+    nm = mtx.nm;
+    this->rows = mtx.rows;
+    return *this;
+}
+
 Matrix Matrix::transposed() const
 {
     Matrix result(nm.second, nm.first);

@@ -108,7 +108,7 @@ void Vector::resize(int newN){
     delete[] data;
     data = newData;
 
-    this->n = n;
+    this->n = newN;
 }
 
 Vector Vector::operator-(const Vector &other) const {

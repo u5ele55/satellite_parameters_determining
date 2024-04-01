@@ -19,4 +19,12 @@ public:
     static Vector solveCholesky(const Matrix &L, const Vector & b);
 
     static void solveCholesky(const Matrix &L, const Matrix &B, Matrix &answer);
+
+    static int LUPDecompose(Matrix &A, Vector &P, double tol);
+
+    static void LUPInvert(const Matrix &A, const Vector &P, Matrix &IA);
+
+    static double LUPDeterminant(const Matrix &A, const Vector &P);
+public:
+    static Matrix Identity(int n);
 };
