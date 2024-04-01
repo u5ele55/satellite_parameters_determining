@@ -47,20 +47,20 @@ void Core::start()
         parameters->vz * 0.987,
         parameters->z + 200,
     };
-    // try initial approximation 
-    // .calculateResiduals()
-    // make step of gradient descent / newton method
+    
     Iterator iterator(
         measurements, 
         times,
         initialGuess, 
         parameters
     );
-    std::cout << "Iteration...\n";
-    iterator.makeIteration();
-
     
-    // if tol < eps end
+    int iterations = 10;
+    std::cout << "Starting with " << initialGuess << '\n';
+    for (int j = 0; j < iterations; j ++) {
+        std::cout << j << ": " << iterator.makeIteration() << '\n';
+    }
+    std::cout << "\nInit: " << parameters->initialState << '\n';
 }
 
 void Core::generateMeasurements(TaskParameters params)
@@ -79,6 +79,7 @@ void Core::generateMeasurements(TaskParameters params)
     double step = 30;
     int hour = 3600;
     bool started = false;
+    int cnt = 0;
     for (int i = 0; i <= 10 * hour; i += step) {
         double time = i;
         Vector state = solver.solve(time);
@@ -95,8 +96,9 @@ void Core::generateMeasurements(TaskParameters params)
         if (started && designation.size() < 3) {
             break;
         }
+        if (started) cnt ++;
         if (started) {
-            std::cout << "WAS " << ecef << '\n';
+            // std::cout << "WAS " << ecef << '\n';
             measurements.push_back(designation);
             times.push_back(i);
         }

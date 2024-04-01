@@ -6,6 +6,7 @@ PartialDerivativeMatrix::PartialDerivativeMatrix(
     Vector steps
 )   : f(f),
     startPoint(startPoint),
+    shiftedF(0),
     steps(steps)
 {}
 #include <iostream>
@@ -19,13 +20,18 @@ Matrix PartialDerivativeMatrix::getMatrix()
     for (int i = 0; i < steps.size(); i ++) {
         shiftedPoint = startPoint;
         shiftedPoint[i] += steps[i];
-        Vector shiftedF = (*f)(shiftedPoint);
+        shiftedF = (*f)(shiftedPoint);
         Vector derivative = (shiftedF - startF) / steps[i];
         for(int j = 0; j < derivative.size(); j ++) {
             A[j][i] = derivative[j];
         }
     }
     return A;
+}
+
+Vector PartialDerivativeMatrix::getShiftedMeasurement() const
+{
+    return shiftedF;
 }
 
 void PartialDerivativeMatrix::setStartPoint(Vector startPoint)

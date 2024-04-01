@@ -12,7 +12,7 @@ private:
     std::vector<Vector> measurements;
     std::vector<double> times;
     // Vector MSEs;
-    std::vector<Function<const Vector&, Vector>*> resFunctions;
+    std::vector<Function<const Vector&, Vector>*> desFunctions;
     TaskParameters *params;
     Vector diagonalK;
 public:

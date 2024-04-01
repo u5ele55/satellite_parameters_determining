@@ -1,4 +1,4 @@
-#include "ResidualsFunction.hpp"
+#include "DesignationFunction.hpp"
 
 #include "integration/system/SpacecraftECI.hpp"
 #include "integration/solver/RK4Solver.hpp"
@@ -10,14 +10,12 @@
 
 #include "radiotelescopes/TelescopeControl.hpp"
 
-ResidualsFunction::ResidualsFunction(
-    Vector measurement, double time, TaskParameters *params
-) : measurement(measurement),
-    time(time),
+DesignationFunction::DesignationFunction(double time, TaskParameters *params)
+    : time(time),
     params(params)
 {}
 #include <iostream>
-Vector ResidualsFunction::operator()(const Vector &arg)
+Vector DesignationFunction::operator()(const Vector &arg)
 {
     RadioTelescope telescope(params->telescopeBLH, params->tsVisionAngle);
     TelescopeControl radioControl(telescope);
@@ -34,11 +32,8 @@ Vector ResidualsFunction::operator()(const Vector &arg)
 
     currentTime = unixToTime(t);
     Vector ecef = eci2ecef(x,y,z, currentTime);
+    auto des = radioControl.targetTelescope(ecef);
+    // std::cout << arg << " -> " << ecef << " -> " << des <<'\n';
 
-    const Vector& designation = radioControl.targetTelescope(ecef);
-    Vector r = designation - measurement;
-    
-    std::cout << arg << " -> " << r << '\n';
-
-    return r;
+    return des;
 }
