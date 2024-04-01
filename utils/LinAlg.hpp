@@ -14,5 +14,5 @@ public:
 
     static void toRad(double& deg);
 
-    static Matrix choleskyDecomposition(const Matrix &A);
+    static Matrix choleskyDecomposition(const Matrix &A, double epsilon=1e-6);
 };

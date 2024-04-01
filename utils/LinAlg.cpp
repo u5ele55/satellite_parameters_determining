@@ -63,9 +63,8 @@ void LinAlg::toRad(double &deg)
     deg *= M_PI / 180;
 }
 #include <iostream>
-Matrix LinAlg::choleskyDecomposition(const Matrix &A)
+Matrix LinAlg::choleskyDecomposition(const Matrix &A, double epsilon)
 {
-    static const double epsilon = 1e-6;
     if (A.size().first != A.size().second) {
         throw std::invalid_argument("CholeskyMaster::choleskyDecomposition: Wrong sizes");
     }
