@@ -25,6 +25,10 @@ public:
     static void LUPInvert(const Matrix &A, const Vector &P, Matrix &IA);
 
     static double LUPDeterminant(const Matrix &A, const Vector &P);
+
+    static void naiveInverse(Matrix &A);
+
+    static double matrixDeterminant(const Matrix& A);
 public:
     static Matrix Identity(int n);
 };

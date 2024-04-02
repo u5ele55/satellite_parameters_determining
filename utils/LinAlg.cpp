@@ -217,6 +217,69 @@ double LinAlg::LUPDeterminant(const Matrix &A, const Vector &P)
     return ((int)P[N] - N) % 2 == 0 ? det : -det;
 }
 
+void LinAlg::naiveInverse(Matrix &A)
+{
+    int N = A.size().first;
+    Matrix E = LinAlg::Identity(N);
+    double temp;
+
+    for (int k = 0; k < N; k++)
+    {
+        temp = A[k][k];
+ 
+        for (int j = 0; j < N; j++) {
+            A[k][j] /= temp;
+            E[k][j] /= temp;
+        }
+ 
+        for (int i = k + 1; i < N; i++) {
+            temp = A[i][k];
+ 
+            for (int j = 0; j < N; j++) {
+                A[i][j] -= A[k][j] * temp;
+                E[i][j] -= E[k][j] * temp;
+            }
+        }
+    }
+ 
+    for (int k = N - 1; k > 0; k--) {
+        for (int i = k - 1; i >= 0; i--) {
+            temp = A[i][k];
+ 
+            for (int j = 0; j < N; j++) {
+                A[i][j] -= A[k][j] * temp;
+                E[i][j] -= E[k][j] * temp;
+            }
+        }
+    }
+ 
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            A[i][j] = E[i][j];
+}
+
+double LinAlg::matrixDeterminant(const Matrix &A)
+{
+    if (A.size().first != A.size().second) {
+        throw std::invalid_argument("LinAlg::matrixDeterminant: Matrix should be square-matrix!");
+    }
+    Matrix B = A;
+    int n = B.size().first;
+    //приведение матрицы к верхнетреугольному виду
+    for(int step = 0; step < n - 1; step++)
+        for(int row = step + 1; row < n; row++)
+        {
+            double coeff = -B[row][step] / B[step][step]; //метод Гаусса
+            for(int col = step; col < n; col++)
+                B[row][col] += B[step][col] * coeff;
+        }
+    //Рассчитать определитель как произведение элементов главной диагонали
+    double Det = 1;
+    for(int i = 0; i < n; i++)
+        Det *= B[i][i];
+    return Det;
+}
+
 Matrix LinAlg::Identity(int n)
 {
     Matrix E(n, n);
