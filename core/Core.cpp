@@ -9,10 +9,13 @@
 #include "radiotelescopes/DesignationsNoiseApplier.hpp"
 #include "integration/solver/RK4Solver.hpp"
 #include "integration/system/SpacecraftECI.hpp"
-#include "least_squares/ResidualsFunctionGenerator.hpp"
+#include "least_squares/DesignationFunctionGenerator.hpp"
 #include "least_squares/Iterator.hpp"
 
+#include "output/FileOutputter.hpp"
+
 #include <iostream>
+
 void Core::start()
 {
     const double JD = 2460206.383;
@@ -33,11 +36,14 @@ void Core::start()
         100, 30 * angleSecond 
     );
 
+    FileOutputter<Vector> outputMeasurements("measurements.txt");
+    FileOutputter<Vector> outputDesGuess("guess_measurements.txt");
+    FileOutputter<Vector> outputDesResult("result_measurements.txt");
+    
     // generateMeasurements()
     generateMeasurements(*parameters);
-    for(int i = 0; i < measurements.size(); i ++) {
-        std::cout << times[i] << " " << measurements[i] << '\n';
-    }
+    outputMeasurements.output(measurements);
+    
     // "worsen" initial state
     Vector initialGuess = {
         parameters->vx * 0.99,
@@ -47,6 +53,14 @@ void Core::start()
         parameters->vz * 0.987,
         parameters->z + 200,
     };
+
+    DesignationFunctionGenerator desGen(times, parameters);
+    auto des = desGen.generate();
+    std::vector<Vector> guessDes;
+    for (auto *d : des) {
+        guessDes.push_back( (*d)(initialGuess) );
+    }
+    outputDesGuess.output(guessDes);
     
     Iterator iterator(
         measurements, 
@@ -57,10 +71,19 @@ void Core::start()
     
     int iterations = 10;
     std::cout << "Starting with " << initialGuess << '\n';
+    Vector q(6);
     for (int j = 0; j < iterations; j ++) {
-        std::cout << j << ": " << iterator.makeIteration() << '\n';
+        q = iterator.makeIteration();
+        std::cout << j << ": " << q << '\n';
     }
     std::cout << "\nInit: " << parameters->initialState << '\n';
+
+    des = desGen.generate();
+    std::vector<Vector> newDes;
+    for (auto *d : des) {
+        newDes.push_back( (*d)(q) );
+    }
+    outputDesResult.output(newDes);
 }
 
 void Core::generateMeasurements(TaskParameters params)

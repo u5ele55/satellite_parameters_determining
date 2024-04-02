@@ -4,6 +4,8 @@
 #include "global/TaskParameters.hpp"
 #include "Function/Function.hpp"
 
+// #include "output/FileOutputter.hpp"
+
 class Iterator
 {
 private:
@@ -15,6 +17,7 @@ private:
     std::vector<Function<const Vector&, Vector>*> desFunctions;
     TaskParameters *params;
     Vector diagonalK;
+    // FileOutputter<Vector> output;
 public:
     Iterator(
         std::vector<Vector> measurements, 
