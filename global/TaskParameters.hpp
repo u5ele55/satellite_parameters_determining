@@ -22,7 +22,7 @@ struct TaskParameters {
         x(x), y(y), z(z), vx(vx), vy(vy), vz(vz), initialState(6),
         distMSE(distMSE), angleMSE(angleMSE)
     {
-        initialState = {vx, x, vy, y, vz, z};
+        initialState = {vx, vy, vz, x, y, z};
     };
 
     Vector telescopeBLH;

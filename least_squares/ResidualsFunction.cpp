@@ -29,7 +29,7 @@ Vector ResidualsFunction::operator()(const Vector &arg)
     RK4Solver solver(system, 10); 
     Vector currentTime(7);
     Vector state = solver.solve(time);
-    double x = state[1], y = state[3], z = state[5];
+    double x = state[3], y = state[4], z = state[5];
     long long t = time + params->unixTimestamp;
 
     currentTime = unixToTime(t);

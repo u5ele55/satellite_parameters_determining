@@ -39,19 +39,21 @@ void Core::start()
     FileOutputter<Vector> outputMeasurements("measurements.txt");
     FileOutputter<Vector> outputDesGuess("guess_measurements.txt");
     FileOutputter<Vector> outputDesResult("result_measurements.txt");
+    FileOutputter<double> outputTime("time.txt");
     
     // generateMeasurements()
     generateMeasurements(*parameters);
     outputMeasurements.output(measurements);
+    outputTime.output(times);
     
     // "worsen" initial state
     Vector initialGuess = {
         parameters->vx * 0.99,
-        parameters->x + 800,
         parameters->vy * 1.01,
-        parameters->y - 100,
         parameters->vz * 0.987,
-        parameters->z + 200,
+        parameters->x + 800,
+        parameters->y - 100,
+        parameters->z + 100,
     };
 
     DesignationFunctionGenerator desGen(times, parameters);
@@ -69,7 +71,7 @@ void Core::start()
         parameters
     );
     
-    int iterations = 10;
+    int iterations = 3;
     std::cout << "Starting with " << initialGuess << '\n';
     Vector q(6);
     for (int j = 0; j < iterations; j ++) {
@@ -99,14 +101,14 @@ void Core::generateMeasurements(TaskParameters params)
     RK4Solver solver(system, 10); 
     Vector currentTime(7);
 
-    double step = 30;
+    double step = 10;
     int hour = 3600;
     bool started = false;
     int cnt = 0;
     for (int i = 0; i <= 10 * hour; i += step) {
         double time = i;
         Vector state = solver.solve(time);
-        double x = state[1], y = state[3], z = state[5];
+        double x = state[3], y = state[4], z = state[5];
         long long t = i + params.unixTimestamp;
         
         currentTime = unixToTime(t);
