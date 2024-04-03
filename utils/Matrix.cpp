@@ -135,6 +135,19 @@ Matrix Matrix::operator*(const Matrix &mtx) const
     return result;
 }
 
+Matrix &Matrix::operator+=(const Matrix &mtx)
+{
+    if(nm != mtx.size()) {
+        throw std::runtime_error("Matrix::operator+=: sizes do not match");
+    }
+
+    for (int i = 0; i < nm.first; i ++) {
+        rows[i] += mtx[i];
+    }
+
+    return *this;
+}
+
 std::ostream &operator<<(std::ostream &stream, const Matrix &mtx)
 {
     stream << "[\n";

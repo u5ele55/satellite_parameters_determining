@@ -36,5 +36,7 @@ public:
 
     Matrix operator*(const Matrix &mtx) const;
 
+    Matrix& operator+=(const Matrix &mtx);
+
     friend std::ostream &operator<<(std::ostream &stream, const Matrix &mtx);
 };
