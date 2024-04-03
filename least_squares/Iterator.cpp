@@ -32,16 +32,17 @@ Iterator::~Iterator()
 #include <iostream>
 Vector Iterator::makeIteration()
 {
+    std::cout << "make it\n";
     int N = measurements.size();
     Vector steps = {5, 5, 5, 100, 100, 100};
+    int stateSize = q.size();
+    Matrix AT_Kinv(stateSize, measurements[0].size());
+    Matrix AT_Kinv_A(stateSize, stateSize);
+    Matrix AT_Kinv_A_inv(stateSize, stateSize);
+    Matrix firstSum(stateSize, stateSize);
+    Vector secondSum(stateSize);
 
-    Matrix AT_Kinv(q.size(), measurements[0].size());
-    Matrix AT_Kinv_A(q.size(), q.size());
-    Matrix AT_Kinv_A_inv(q.size(), q.size());
-    Matrix firstSum(q.size(), q.size());
-    Vector secondSum(q.size());
-
-    Matrix E = LinAlg::Identity(q.size());
+    Matrix E = LinAlg::Identity(stateSize);
     for(int i = 0; i < N; i ++) {   
         PartialDerivativeMatrix genA(desFunctions[i], q, steps);
         std::cout << "getA\n";
