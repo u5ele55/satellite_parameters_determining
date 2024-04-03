@@ -5,9 +5,11 @@ Vector DesignationsNoiseApplier::targetTelescope(const Vector &ecef)
 {
     auto designations = radioControl.targetTelescope(ecef);
     
-    designations[0] += distanceNoise(gen);
-    designations[1] += angleNoise(gen);
-    designations[2] += angleNoise(gen);
+    if (designations.size() == 3) {
+        designations[0] += distanceNoise(gen);
+        designations[1] += angleNoise(gen);
+        designations[2] += angleNoise(gen);
+    }
     
     return designations;
 }
