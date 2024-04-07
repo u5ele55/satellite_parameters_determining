@@ -3,4 +3,5 @@
 
 Vector unixToTime(long long secs);
 long long dateToUnix(Vector time);
-double dateToJd(Vector date);
+double dateToJDN(Vector date);
+double timeToJD(Vector date);
