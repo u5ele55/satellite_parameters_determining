@@ -9,6 +9,7 @@ private:
 public:
     Matrix(int rows, int cols);
     Matrix(std::pair<int, int> nm);
+    Matrix(const std::initializer_list<Vector>& lst);
     Matrix(const Matrix& mtx);
     Matrix& operator=(const Matrix& mtx);
 

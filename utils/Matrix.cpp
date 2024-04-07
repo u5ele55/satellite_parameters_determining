@@ -12,6 +12,14 @@ Matrix::Matrix(std::pair<int, int> nm)
     : Matrix(nm.first, nm.second)
 {}
 
+Matrix::Matrix(const std::initializer_list<Vector> &lst)
+{
+    nm = std::make_pair(lst.size(), lst.begin()->size());
+    for (const auto &v : lst) {
+        this->rows.push_back(Vector(v));
+    }
+}
+
 Matrix::Matrix(const Matrix &mtx)
     : nm(mtx.nm)
 {
