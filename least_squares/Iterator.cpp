@@ -32,48 +32,39 @@ Iterator::~Iterator()
 #include <iostream>
 Vector Iterator::makeIteration()
 {
-    std::cout << "make it\n";
     int N = measurements.size();
     Vector steps = {5, 5, 5, 100, 100, 100};
     int stateSize = q.size();
     Matrix AT_Kinv(stateSize, measurements[0].size());
     Matrix AT_Kinv_A(stateSize, stateSize);
-    Matrix AT_Kinv_A_inv(stateSize, stateSize);
     Matrix firstSum(stateSize, stateSize);
     Vector secondSum(stateSize);
 
-    Matrix E = LinAlg::Identity(stateSize);
-    for(int i = 0; i < N; i ++) {   
-        PartialDerivativeMatrix genA(desFunctions[i], q, steps);
-        std::cout << "getA\n";
+    for(int k = 0; k < N; k ++) {
+        PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
-        std::cout << "A : " << A << '\n';
-        // std::cout << A << '\n';
+        if (A.size().first != 3){
+            throw std::runtime_error("Got too far from true state");
+        }
+
         for(int i = 0; i < AT_Kinv.size().first; i ++) {
             for(int j = 0; j < AT_Kinv.size().second; j ++) {
-                AT_Kinv[i][j] = A[j][i];/// diagonalK[j];
+                AT_Kinv[i][j] = A[j][i] / diagonalK[j];
             }
         }
         AT_Kinv_A = AT_Kinv * A;
-        Matrix c(AT_Kinv_A.size());
-        for(int i = 0; i < c.size().first; i ++) {
-            for(int j = 0; j < c.size().second; j ++) {
-                c[i][j] = AT_Kinv_A[i][j];
-            }
-        }
-        AT_Kinv_A_inv = AT_Kinv_A;
-        std::cout << "invertible? " << LinAlg::matrixDeterminant(AT_Kinv_A) << '\n';
-        // LinAlg::naiveInverse(AT_Kinv_A_inv);
-        // std::cout << AT_Kinv_A_inv << '\n';
-        // std::cout << LinAlg::matrixDeterminant(AT_Kinv_A * AT_Kinv_A_inv) << '\n';
-        auto L = LinAlg::choleskyDecomposition(AT_Kinv_A, 1e-6);
-        LinAlg::solveCholesky(L, E, AT_Kinv_A_inv);
-        // firstSum = firstSum + AT_Kinv_A_inv;
-        Vector delta_r = genA.getShiftedMeasurement() - measurements[i];
-        // secondSum = secondSum + AT_Kinv * delta_r;
-        q = q - AT_Kinv_A_inv * AT_Kinv * delta_r;
+        if (k == 1) std::cout << "invertible? " << LinAlg::matrixDeterminant(AT_Kinv_A) << '\n';
+        firstSum += AT_Kinv_A;
+        Vector delta_r = measurements[k] - (*desFunctions[k])(q);
+        secondSum += AT_Kinv * delta_r;
         // std::cout << "q: " <<  q << '\n';
     }
+    std::cout << "fs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
+    auto fsInv = firstSum;
+    LinAlg::naiveInverse(fsInv);
+    std::cout << firstSum << "\n";
+    std::cout << secondSum << "\n";
+    q = q + fsInv * secondSum;
 
 
     return q;
