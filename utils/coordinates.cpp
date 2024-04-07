@@ -51,7 +51,7 @@ Vector eci2ecef(double x, double y, double z, Vector currentTime)
     double hrs = currentTime[3], mns = currentTime[4], scs = currentTime[5];
     double UT = (hrs * 60 + mns) * 60 + scs;
     
-    long long d = dateToJd(currentTime) - 2451545;
+    long long d = dateToJDN(currentTime) - 2451545;
     double t = d / 36525.0;
     
     double S_0 = 
