@@ -13,6 +13,6 @@ private:
     std::normal_distribution<double> angleNoise; 
     TelescopeControl &radioControl;
 public:
-    DesignationsNoiseApplier(TelescopeControl &radioControl, double distanceMSE, double angleMSE);
+    DesignationsNoiseApplier(TelescopeControl &radioControl, double distanceMSE, double angleMSE, int seed = 0);
     Vector targetTelescope(const Vector& ecef);
 };

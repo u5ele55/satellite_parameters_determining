@@ -14,9 +14,9 @@ Vector DesignationsNoiseApplier::targetTelescope(const Vector &ecef)
     return designations;
 }
 
-DesignationsNoiseApplier::DesignationsNoiseApplier(TelescopeControl &radioControl, double distanceMSE, double angleMSE)
+DesignationsNoiseApplier::DesignationsNoiseApplier(TelescopeControl &radioControl, double distanceMSE, double angleMSE, int seed)
     : radioControl(radioControl),
-    gen(rd()),
+    gen(seed == 0 ? rd() : seed),
     distanceNoise(0, distanceMSE),
     angleNoise(0, angleMSE)
 {}
