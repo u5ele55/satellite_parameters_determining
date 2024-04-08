@@ -172,6 +172,15 @@ Vector &Vector::operator*=(double other)
     return *this;
 }
 
+Vector &Vector::operator/=(double other)
+{
+    for (int i = 0; i < n; i++) {
+        at(i) /= other;
+    }
+
+    return *this;
+}
+
 Vector &Vector::operator=(const Vector &other) {
     resize(other.n);
     for (int i = 0; i < other.n; i++) {
