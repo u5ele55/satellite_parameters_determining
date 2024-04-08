@@ -11,8 +11,14 @@ TelescopeControl::TelescopeControl(
 ) : telescope(telescope),
     rtCoord(blh2ecef(telescope.getBLH())),
     convertToDegrees(convertToDegrees),
-    convertToKm(convertToKm)
-{}
+    convertToKm(convertToKm),
+    planeNormal(3)
+{
+    double a = Constants::Earth::MAJOR_AXIS;
+    double b = Constants::Earth::MINOR_AXIS;
+    planeNormal = {rtCoord[0] / (a*a), rtCoord[1] / (a*a), rtCoord[2] / (b*b)};
+    planeNormal /= planeNormal.norm();
+}
 
 Vector TelescopeControl::targetTelescope(const Vector &ecef)
 {
@@ -24,7 +30,7 @@ Vector TelescopeControl::targetTelescope(const Vector &ecef)
 
     if (distanceSqr < maxDistanceSqr) {
         // find angle between RT plane and vector between RT and satellite
-        double cosAngle = r.dot(rtCoord) / sqrt(r.dot(r) * rtCoord.dot(rtCoord));
+        double cosAngle = r.dot(planeNormal) / r.norm();
         if (cosAngle < 0) {
             return {};
         }
