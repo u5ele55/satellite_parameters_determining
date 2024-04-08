@@ -20,12 +20,12 @@ void Core::start()
     Vector currentTime = {2023, 9, 18, 21, 11, 31, 0};
     double JD = timeToJD(currentTime);
     
-    Vector telescopeBLH{30, 45, 1};
+    Vector telescopeBLH{45, 45, 1};
 
     LinAlg::toRad(telescopeBLH[0]);
     LinAlg::toRad(telescopeBLH[1]);
     Vector initialPosition = {6871257.864, 0.0, 0.0};
-    Vector initialSpeed = {0.0, 3810.1125727278977, 6599.308558521686};
+    Vector initialSpeed = {0.0, 3810, 6600};
     double angleSecond = M_PI/(180 * 3600);
     auto parameters = new TaskParameters(
         telescopeBLH, 
@@ -71,7 +71,7 @@ void Core::start()
         parameters
     );
     
-    int iterations = 3;
+    int iterations = 1;
     std::cout << "Starting with " << initialGuess << '\n';
     Vector q(6);
     for (int j = 0; j < iterations; j ++) {
@@ -123,7 +123,7 @@ void Core::generateMeasurements(TaskParameters params)
         }
         if (started) cnt ++;
         if (started) {
-            // std::cout << "WAS " << ecef << '\n';
+            std::cout << designation << '\n';
             measurements.push_back(designation);
             times.push_back(i);
         }

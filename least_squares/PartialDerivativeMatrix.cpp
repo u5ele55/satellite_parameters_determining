@@ -15,15 +15,12 @@ Matrix PartialDerivativeMatrix::getMatrix()
     startF = (*f)(startPoint);
     Vector shiftedF(startF.size());
     Matrix A(startF.size(), startPoint.size());
-
     Vector shiftedPoint(startPoint.size());
     for (int i = 0; i < steps.size(); i ++) {
         shiftedPoint = startPoint;
         shiftedPoint[i] += steps[i];
-        // std::cout << "shiftedPoint: " << shiftedPoint << '\n';
         shiftedF = (*f)(shiftedPoint);
         Vector derivative = (shiftedF - startF) / steps[i];
-        // std::cout << "derivative: " << derivative << '\n';
         for(int j = 0; j < derivative.size(); j ++) {
             A[j][i] = derivative[j];
         }

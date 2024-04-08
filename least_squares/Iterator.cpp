@@ -35,15 +35,17 @@ Vector Iterator::makeIteration()
     int N = measurements.size();
     Vector steps = {5, 5, 5, 100, 100, 100};
     int stateSize = q.size();
-    Matrix AT_Kinv(stateSize, measurements[0].size());
+    int measurementSize = measurements[0].size();
+    Matrix AT_Kinv(stateSize, measurementSize);
     Matrix AT_Kinv_A(stateSize, stateSize);
     Matrix firstSum(stateSize, stateSize);
     Vector secondSum(stateSize);
 
-    for(int k = 0; k < N; k ++) {
+    for(int k = 1; k < N-2; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
-        if (A.size().first != 3){
+        if (A.size().first != measurementSize){
+            std::cout << "fallen at " << k << ": " << measurements[k] << ", got " << A << '\n';
             throw std::runtime_error("Got too far from true state");
         }
 
@@ -53,7 +55,7 @@ Vector Iterator::makeIteration()
             }
         }
         AT_Kinv_A = AT_Kinv * A;
-        if (k == 1) std::cout << "invertible? " << LinAlg::matrixDeterminant(AT_Kinv_A) << '\n';
+        if (k == 1) std::cout << "invertible? " << LinAlg::matrixDeterminant(AT_Kinv_A) << A << '\n';
         firstSum += AT_Kinv_A;
         Vector delta_r = measurements[k] - (*desFunctions[k])(q);
         secondSum += AT_Kinv * delta_r;
