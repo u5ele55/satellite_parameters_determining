@@ -266,13 +266,15 @@ double LinAlg::matrixDeterminant(const Matrix &A)
     Matrix B = A;
     int n = B.size().first;
     //приведение матрицы к верхнетреугольному виду
-    for(int step = 0; step < n - 1; step++)
+    for(int step = 0; step < n - 1; step++) {
         for(int row = step + 1; row < n; row++)
         {
+            if (B[step][step] == 0) return 0;
             double coeff = -B[row][step] / B[step][step]; //метод Гаусса
             for(int col = step; col < n; col++)
                 B[row][col] += B[step][col] * coeff;
         }
+    }
     //Рассчитать определитель как произведение элементов главной диагонали
     double Det = 1;
     for(int i = 0; i < n; i++)
