@@ -15,10 +15,10 @@
 #include "output/FileOutputter.hpp"
 
 #include <iostream>
-
 void Core::start()
 {
-    const double JD = 2460206.383;
+    Vector currentTime = {2023, 9, 18, 21, 11, 31, 0};
+    double JD = timeToJD(currentTime);
     
     Vector telescopeBLH{30, 45, 1};
 
@@ -92,7 +92,7 @@ void Core::generateMeasurements(TaskParameters params)
 {
     RadioTelescope telescope(params.telescopeBLH, params.tsVisionAngle);
     TelescopeControl radioControl(telescope);
-    DesignationsNoiseApplier desNoiseApplier(radioControl, params.distMSE, params.angleMSE);
+    DesignationsNoiseApplier desNoiseApplier(radioControl, params.distMSE, params.angleMSE, 1);
 
     auto *system = new SpacecraftECI(
         Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
