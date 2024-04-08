@@ -25,12 +25,11 @@ Vector DesignationFunction::operator()(const Vector &arg)
         Constants::Earth::ANGULAR_SPEED, 
         arg);
     RK4Solver solver(system, 10); 
-    Vector currentTime(7);
     Vector state = solver.solve(time);
     double x = state[3], y = state[4], z = state[5];
     long long t = time + params->unixTimestamp;
 
-    currentTime = unixToTime(t);
+    Vector currentTime = unixToTime(t);
     Vector ecef = eci2ecef(x,y,z, currentTime);
     auto des = radioControl.targetTelescope(ecef);
     // std::cout << arg << " -> " << ecef << " -> " << des <<'\n';
