@@ -38,7 +38,7 @@ void Core::start()
     
     // "worsen" initial state
     Vector initialGuess = {
-        2, 2, 4, 4, 6, 6
+        0.5, 2, 2.5, 4, 4.5, 6
     };
     
     Iterator iterator(
@@ -59,11 +59,11 @@ void Core::start()
 
 void Core::generateMeasurements(TaskParameters params)
 {
-    for (int i = 0; i <= 200; i += 10) {
+    for (int i = 10; i <= 90; i += 10) {
         TestFunction tf(i);
         auto designation = tf({1, 2, 3, 4, 5, 6});
         
-        std::cout << designation << '\n';
+        // std::cout << designation << '\n';
         measurements.push_back(designation);
         times.push_back(i);
     }

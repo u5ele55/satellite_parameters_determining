@@ -43,31 +43,41 @@ Vector Iterator::makeIteration()
     Matrix firstSum(stateSize, stateSize);
     Vector secondSum(stateSize);
 
-    for(int k = 1; k < N-2; k ++) {
+    Matrix bigA(N * 1, stateSize);
+    Vector bigR(N * 1);
+
+    for(int k = 0; k < N; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
         if (A.size().first != measurementSize){
             std::cout << "fallen at " << k << ": " << measurements[k] << ", got " << A << '\n';
             throw std::runtime_error("Got too far from true state");
         }
-
-        for(int i = 0; i < AT_Kinv.size().first; i ++) {
-            for(int j = 0; j < AT_Kinv.size().second; j ++) {
-                AT_Kinv[i][j] = A[j][i];
-            }
-        }
-        AT_Kinv_A = AT_Kinv * A;
-        if (k == 10) std::cout << "invertible? " << LinAlg::matrixDeterminant(AT_Kinv_A) << A << '\n';
-        firstSum += AT_Kinv_A;
         Vector delta_r = measurements[k] - (*desFunctions[k])(q);
-        secondSum += AT_Kinv * delta_r;
-        // std::cout << "q: " <<  q << '\n';
+        for (int i = 0; i < 1; i ++) {
+            bigA[k * 1 + i] = A[i];
+            bigR[k * 1 + i] = delta_r[i];
+        }
     }
-    std::cout << "fs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
-    auto fsInv = firstSum;
+
+    Matrix bigATK(bigA.size().second, bigA.size().first);
+
+    for(int i = 0; i < bigATK.size().first; i ++) {
+        for(int j = 0; j < bigATK.size().second; j ++) {
+            bigATK[i][j] = bigA[j][i];
+        }
+    }
+    std::cout << "bigA : " << bigA << '\n';
+    std::cout << "bigATK : " << bigATK << '\n';
+    std::cout << "bigR : " << bigR << '\n';
+    auto bigATKA = bigATK * bigA;
+    std::cout << "bigATKA : " << bigATKA << '\n';
+    std::cout << "fs invertible? " << LinAlg::matrixDeterminant(bigATKA) << '\n';
+    auto fsInv = bigATKA;
     LinAlg::naiveInverse(fsInv);
-    std::cout << firstSum << "\n";
-    std::cout << secondSum << "\n";
+
+    secondSum = bigATK * bigR;
+
     q = q + fsInv * secondSum;
 
     return q;
