@@ -41,11 +41,12 @@ Vector Iterator::makeIteration()
     Matrix firstSum(stateSize, stateSize);
     Vector secondSum(stateSize);
 
-    for(int k = 1; k < N-2; k ++) {
+    for(int k = 2; k < N-2; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
         if (A.size().first != measurementSize){
-            std::cout << "fallen at " << k << ": " << measurements[k] << ", got " << A << '\n';
+            std::cout << "\tskipping " << k << ": " << measurements[k] << '\n';
+            continue;
             throw std::runtime_error("Got too far from true state");
         }
 
@@ -55,17 +56,18 @@ Vector Iterator::makeIteration()
             }
         }
         AT_Kinv_A = AT_Kinv * A;
-        if (k == 1) std::cout << "invertible? " << LinAlg::matrixDeterminant(AT_Kinv_A) << A << '\n';
         firstSum += AT_Kinv_A;
         Vector delta_r = measurements[k] - (*desFunctions[k])(q);
         secondSum += AT_Kinv * delta_r;
         // std::cout << "q: " <<  q << '\n';
     }
-    std::cout << "fs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
+    std::cout << "\tfs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
+    // std::cout << firstSum << "\n";
     auto fsInv = firstSum;
+    std::cout << '\t' << fsInv << '\n';
+    std::cout << '\t' << secondSum << '\n';
     LinAlg::naiveInverse(fsInv);
-    std::cout << firstSum << "\n";
-    std::cout << secondSum << "\n";
+    std::cout << "\t- " << fsInv * secondSum << "\n";
     q = q + fsInv * secondSum;
 
 
