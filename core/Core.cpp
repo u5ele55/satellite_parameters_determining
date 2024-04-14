@@ -11,6 +11,7 @@
 #include "integration/system/SpacecraftECI.hpp"
 #include "least_squares/DesignationFunctionGenerator.hpp"
 #include "least_squares/Iterator.hpp"
+#include "least_squares/ResidualsFunctionGenerator.hpp"
 
 #include "output/FileOutputter.hpp"
 
@@ -20,7 +21,7 @@ void Core::start()
     Vector currentTime = {2023, 9, 18, 21, 11, 31, 0};
     double JD = timeToJD(currentTime);
     
-    Vector telescopeBLH{45, 45, 1};
+    Vector telescopeBLH{30, 30, 1};
 
     LinAlg::toRad(telescopeBLH[0]);
     LinAlg::toRad(telescopeBLH[1]);
@@ -33,7 +34,7 @@ void Core::start()
         JD,
         initialPosition[0], initialPosition[1], initialPosition[2],
         initialSpeed[0], initialSpeed[1], initialSpeed[2],
-        100, 30 * angleSecond 
+        1, 1
     );
 
     FileOutputter<Vector> outputMeasurements("measurements.txt");
@@ -48,12 +49,12 @@ void Core::start()
     
     // "worsen" initial state
     Vector initialGuess = {
-        parameters->vx * 0.99,
-        parameters->vy * 1.01,
-        parameters->vz * 0.987,
-        parameters->x + 800,
-        parameters->y - 100,
-        parameters->z + 100,
+        parameters->vx + 50,
+        parameters->vy - 50,
+        parameters->vz + 50,
+        parameters->x + 5000,
+        parameters->y - 5000,
+        parameters->z + 5000,
     };
 
     DesignationFunctionGenerator desGen(times, parameters);
@@ -71,12 +72,38 @@ void Core::start()
         parameters
     );
     
-    int iterations = 1;
     std::cout << "Starting with " << initialGuess << '\n';
-    Vector q(6);
-    for (int j = 0; j < iterations; j ++) {
+    Vector q(6), lastQ(6);
+    q[0] = 1;
+
+    auto shouldStop = [](const Vector &q, const Vector &lastQ) {
+        Vector delta = lastQ-q;
+        Vector v = {delta[0], delta[1], delta[2]};
+        Vector r = {delta[3], delta[4], delta[5]};
+        return v.norm() < 1e-3 && r.norm() < 1e-5;
+    };
+    ResidualsFunctionGenerator resGen(measurements, times, parameters);
+    auto resFs = resGen.generate();
+    
+    auto calcResSq = [&resFs, &parameters](Vector st) {
+        double r = 0;
+        for (auto& res : resFs) {
+            auto resV = (*res)(st);
+            resV[0] /= pow(parameters->distMSE, 2);
+            resV[1] /= pow(parameters->angleMSE,2);
+            resV[2] /= pow(parameters->angleMSE,2);
+            r += resV.dot(resV);
+        }
+        return r;
+    };
+
+    for (int j = 0; !shouldStop(q, lastQ); j ++) {
+        lastQ = q;
+        if (j != 0)  {
+            std::cout << j << ": " << q << '\n';
+            std::cout << "res q: " << calcResSq(q) << '\n';
+        }
         q = iterator.makeIteration();
-        std::cout << j << ": " << q << '\n';
     }
     std::cout << "\nInit: " << parameters->initialState << '\n';
 
@@ -86,6 +113,9 @@ void Core::start()
         newDes.push_back( (*d)(q) );
     }
     outputDesResult.output(newDes);
+
+    std::cout << "res init: " << calcResSq(parameters->initialState) << '\n';
+
 }
 
 void Core::generateMeasurements(TaskParameters params)
@@ -114,7 +144,7 @@ void Core::generateMeasurements(TaskParameters params)
         currentTime = unixToTime(t);
         Vector ecef = eci2ecef(x,y,z, currentTime);
 
-        const auto& designation = desNoiseApplier.targetTelescope(ecef);
+        const auto& designation = radioControl.targetTelescope(ecef);
         if (!started && designation.size() == 3) {
             started = true;
         }
