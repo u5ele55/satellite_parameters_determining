@@ -37,8 +37,6 @@ Vector ResidualsFunction::operator()(const Vector &arg)
 
     const Vector& designation = radioControl.targetTelescope(ecef);
     Vector r = designation - measurement;
-    
-    std::cout << arg << " -> " << r << '\n';
 
     return r;
 }
