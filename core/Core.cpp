@@ -107,15 +107,13 @@ void Core::start()
     }
     std::cout << "\nInit: " << parameters->initialState << '\n';
 
+    std::cout << "res init: " << calcResSq(parameters->initialState) << '\n';
     des = desGen.generate();
     std::vector<Vector> newDes;
     for (auto *d : des) {
         newDes.push_back( (*d)(q) );
     }
     outputDesResult.output(newDes);
-
-    std::cout << "res init: " << calcResSq(parameters->initialState) << '\n';
-
 }
 
 void Core::generateMeasurements(TaskParameters params)
@@ -127,7 +125,8 @@ void Core::generateMeasurements(TaskParameters params)
     auto *system = new SpacecraftECI(
         Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
         Constants::Earth::ANGULAR_SPEED, 
-        params.initialState);
+        params.initialState
+    );
     RK4Solver solver(system, 10); 
     Vector currentTime(7);
 
@@ -153,7 +152,7 @@ void Core::generateMeasurements(TaskParameters params)
         }
         if (started) cnt ++;
         if (started) {
-            std::cout << designation << '\n';
+            // std::cout << designation << '\n';
             measurements.push_back(designation);
             times.push_back(i);
         }
