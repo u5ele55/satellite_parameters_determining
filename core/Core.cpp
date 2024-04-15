@@ -9,9 +9,9 @@
 #include "radiotelescopes/DesignationsNoiseApplier.hpp"
 #include "integration/solver/RK4Solver.hpp"
 #include "integration/system/SpacecraftECI.hpp"
-#include "least_squares/DesignationFunctionGenerator.hpp"
+#include "least_squares/functions/DesignationFunctionGenerator.hpp"
 #include "least_squares/Iterator.hpp"
-#include "least_squares/ResidualsFunctionGenerator.hpp"
+#include "least_squares/functions/ResidualsFunctionGenerator.hpp"
 
 #include "output/FileOutputter.hpp"
 
@@ -142,7 +142,7 @@ void Core::generateMeasurements(TaskParameters params)
         currentTime = unixToTime(t);
         Vector ecef = eci2ecef(x,y,z, currentTime);
 
-        const auto& designation = desNoiseApplier.targetTelescope(ecef);
+        const auto& designation = radioControl.targetTelescope(ecef);
         if (!started && designation.size() == 3) {
             started = true;
         }

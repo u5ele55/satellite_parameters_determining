@@ -41,17 +41,18 @@ Vector TelescopeControl::targetTelescope(const Vector &ecef)
             // could be seen!
             double azimuth = calculateAzimuth(ecef, rtCoord); 
             double distance = sqrt(distanceSqr); // in meters
-            return {
-                convertToKm ? std::round(distance) / 1000.0 : distance,
-                convertToDegrees ? azimuth * 180 / M_PI : azimuth,
-                convertToDegrees ? angle * 180 / M_PI : angle 
-            };
+            return ecef;
+            // return {
+            //     convertToKm ? std::round(distance) / 1000.0 : distance,
+            //     convertToDegrees ? azimuth * 180 / M_PI : azimuth,
+            //     convertToDegrees ? angle * 180 / M_PI : angle 
+            // };
         } else {
             // just in radiozone
-            return {0};
+            // return {0};
         }
     }
-    return {}; //
+    return {}; 
 }
 
 double TelescopeControl::calculateAzimuth(Vector r_sat, Vector r_st)

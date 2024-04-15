@@ -15,6 +15,7 @@ private:
     std::vector<double> times;
     // Vector MSEs;
     std::vector<Function<const Vector&, Vector>*> desFunctions;
+    std::vector<Function<const Vector&, Vector>*> stateFunctions;
     TaskParameters *params;
     Vector diagonalK;
     // FileOutputter<Vector> output;

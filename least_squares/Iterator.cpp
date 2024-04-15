@@ -1,6 +1,6 @@
 #include "Iterator.hpp"
 
-#include "DesignationFunctionGenerator.hpp"
+#include "functions/DesignationFunctionGenerator.hpp"
 #include "PartialDerivativeMatrix.hpp"
 
 #include "LinAlg.hpp"
@@ -64,7 +64,7 @@ Vector Iterator::makeIteration()
     std::cout << "\tfs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
     // std::cout << firstSum << "\n";
     auto fsInv = firstSum;
-    std::cout << '\t' << fsInv << '\n';
+    // std::cout << '\t' << fsInv << '\n';
     std::cout << '\t' << secondSum << '\n';
     LinAlg::naiveInverse(fsInv);
     std::cout << "\t- " << fsInv * secondSum << "\n";
