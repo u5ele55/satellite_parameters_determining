@@ -34,7 +34,7 @@ void Core::start()
         JD,
         initialPosition[0], initialPosition[1], initialPosition[2],
         initialSpeed[0], initialSpeed[1], initialSpeed[2],
-        1, 1
+        {1, 1, 1}
     );
 
     FileOutputter<Vector> outputMeasurements("measurements.txt");
@@ -80,7 +80,7 @@ void Core::start()
         Vector delta = lastQ-q;
         Vector v = {delta[0], delta[1], delta[2]};
         Vector r = {delta[3], delta[4], delta[5]};
-        return v.norm() < 1e-3 && r.norm() < 1e-5;
+        return v.norm() < 1e-2 && r.norm() < 1e-1;
     };
     ResidualsFunctionGenerator resGen(measurements, times, parameters);
     auto resFs = resGen.generate();
@@ -89,9 +89,8 @@ void Core::start()
         double r = 0;
         for (auto& res : resFs) {
             auto resV = (*res)(st);
-            resV[0] /= pow(parameters->distMSE, 2);
-            resV[1] /= pow(parameters->angleMSE,2);
-            resV[2] /= pow(parameters->angleMSE,2);
+            for (int i = 0; i < resV.size(); i ++)
+                resV[i] /= pow(parameters->MSEs[i], 2);
             r += resV.dot(resV);
         }
         return r;
@@ -120,7 +119,7 @@ void Core::generateMeasurements(TaskParameters params)
 {
     RadioTelescope telescope(params.telescopeBLH, params.tsVisionAngle);
     TelescopeControl radioControl(telescope);
-    DesignationsNoiseApplier desNoiseApplier(radioControl, params.distMSE, params.angleMSE, 1);
+    DesignationsNoiseApplier desNoiseApplier(radioControl, params.MSEs, 1);
 
     auto *system = new SpacecraftECI(
         Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
@@ -143,7 +142,7 @@ void Core::generateMeasurements(TaskParameters params)
         currentTime = unixToTime(t);
         Vector ecef = eci2ecef(x,y,z, currentTime);
 
-        const auto& designation = radioControl.targetTelescope(ecef);
+        const auto& designation = desNoiseApplier.targetTelescope(ecef);
         if (!started && designation.size() == 3) {
             started = true;
         }

@@ -15,13 +15,13 @@ Iterator::Iterator(
     measurements(measurements),
     times(times),
     q(initialGuess),
-    diagonalK(3)
+    diagonalK(params->MSEs.size())
 {
     DesignationFunctionGenerator desGen(times, params);
     desFunctions = desGen.generate();
-    diagonalK[0] = params->distMSE * params->distMSE;
-    diagonalK[1] = params->angleMSE * params->angleMSE;
-    diagonalK[2] = params->angleMSE * params->angleMSE;
+    for (int i = 0; i < diagonalK.size(); i ++) {
+        diagonalK[i] = pow(params->MSEs[i], 2);
+    }
 }
 
 Iterator::~Iterator()
@@ -33,7 +33,7 @@ Iterator::~Iterator()
 Vector Iterator::makeIteration()
 {
     int N = measurements.size();
-    Vector steps = {5, 5, 5, 100, 100, 100};
+    Vector steps = {.05, .05, .05, 1, 1, 1};
     int stateSize = q.size();
     int measurementSize = measurements[0].size();
     Matrix AT_Kinv(stateSize, measurementSize);
