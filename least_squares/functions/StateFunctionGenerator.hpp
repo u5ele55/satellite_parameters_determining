@@ -7,7 +7,6 @@
 class StateFunctionGenerator
 {
 private:
-    std::vector<Vector> measurements;
     std::vector<double> times;
     TaskParameters *params;
 public:
