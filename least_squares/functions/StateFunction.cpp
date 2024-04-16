@@ -17,9 +17,6 @@ StateFunction::StateFunction(double time, TaskParameters *params)
 
 Vector StateFunction::operator()(const Vector &x_0)
 {
-    RadioTelescope telescope(params->telescopeBLH, params->tsVisionAngle);
-    TelescopeControl radioControl(telescope);
-
     auto *system = new SpacecraftECI(
         Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
         Constants::Earth::ANGULAR_SPEED, 
