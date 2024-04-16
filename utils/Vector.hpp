@@ -7,7 +7,7 @@ private:
     int n;
     double * data;
 public:
-    Vector(int n);
+    explicit Vector(int n);
 
     Vector(std::initializer_list<double> list);
 
