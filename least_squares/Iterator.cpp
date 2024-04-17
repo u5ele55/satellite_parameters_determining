@@ -44,6 +44,7 @@ Vector Iterator::makeIteration()
     for(int k = 2; k < N-2; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
+        if (k == 3) std::cout << "A : " << A << '\n';
         if (A.size().first != measurementSize){
             std::cout << "\tskipping " << k << ": " << measurements[k] << '\n';
             continue;
