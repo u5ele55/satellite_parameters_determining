@@ -36,6 +36,9 @@ Vector ResidualsFunction::operator()(const Vector &arg)
     Vector ecef = eci2ecef(x,y,z, currentTime);
 
     const Vector& designation = radioControl.targetTelescope(ecef);
+    if (!designation.size()) {
+        return {};
+    }
     Vector r = designation - measurement;
 
     return r;
