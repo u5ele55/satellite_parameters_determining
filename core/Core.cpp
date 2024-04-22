@@ -57,6 +57,7 @@ void Core::start()
         parameters->z + 5000,
     };
 
+    // initial guess measurements
     DesignationFunctionGenerator desGen(times, parameters);
     auto des = desGen.generate();
     std::vector<Vector> guessDes;
@@ -65,6 +66,7 @@ void Core::start()
     }
     outputDesGuess.output(guessDes);
     
+    // iterating setup
     Iterator iterator(
         measurements, 
         times,
@@ -80,7 +82,7 @@ void Core::start()
         Vector delta = lastQ-q;
         Vector v = {delta[0], delta[1], delta[2]};
         Vector r = {delta[3], delta[4], delta[5]};
-        return v.norm() < 1e-2 && r.norm() < 1e-1;
+        return v.norm() < 1e-3 && r.norm() < 1e-3;
     };
     ResidualsFunctionGenerator resGen(measurements, times, parameters);
     auto resFs = resGen.generate();
@@ -96,6 +98,7 @@ void Core::start()
         return r;
     };
 
+    // iterating process
     for (int j = 0; !shouldStop(q, lastQ); j ++) {
         lastQ = q;
         if (j != 0)  {
@@ -104,8 +107,10 @@ void Core::start()
         }
         q = iterator.makeIteration();
     }
-    std::cout << "\nInit: " << parameters->initialState << '\n';
 
+    std::cout << "\nFinal: " << q << '\n';
+
+    std::cout << "\nInit: " << parameters->initialState << '\n';
     std::cout << "res init: " << calcResSq(parameters->initialState) << '\n';
     des = desGen.generate();
     std::vector<Vector> newDes;
