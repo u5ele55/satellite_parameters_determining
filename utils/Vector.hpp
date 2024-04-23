@@ -67,6 +67,9 @@ public:
 
     void resize(int newN);
 
+    /// @brief Appends `other` to the end of the current vector
+    void extend(const Vector& other);
+
     friend std::ostream &operator<<(std::ostream &stream, const Vector &vec);
 };
 

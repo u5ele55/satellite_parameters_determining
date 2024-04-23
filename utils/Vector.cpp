@@ -111,6 +111,15 @@ void Vector::resize(int newN){
     this->n = newN;
 }
 
+void Vector::extend(const Vector &other)
+{
+    int oldN = n;
+    resize(n + other.n);
+    for (int i = oldN; i < n; i ++) {
+        at(i) = other[i];
+    }
+}
+
 Vector Vector::operator-(const Vector &other) const {
     return *this + (-other);
 }
