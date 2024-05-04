@@ -34,7 +34,7 @@ void Core::start()
         JD,
         initialPosition[0], initialPosition[1], initialPosition[2],
         initialSpeed[0], initialSpeed[1], initialSpeed[2],
-        {1, 1, 1}
+        {100, 7*angleSecond, 7*angleSecond}
     );
 
     FileOutputter<Vector> outputMeasurements("measurements.txt");
@@ -76,7 +76,6 @@ void Core::start()
     
     std::cout << "Starting with " << initialGuess << '\n';
     Vector q(6), lastQ(6);
-    q[0] = 1;
 
     auto shouldStop = [](const Vector &q, const Vector &lastQ) {
         Vector delta = lastQ-q;
@@ -99,14 +98,17 @@ void Core::start()
     };
 
     // iterating process
-    for (int j = 0; !shouldStop(q, lastQ); j ++) {
+    int iter = 0;
+    do {
         lastQ = q;
-        if (j != 0)  {
-            std::cout << j << ": " << q << '\n';
-            std::cout << "res q: " << calcResSq(q) << '\n';
-        }
         q = iterator.makeIteration();
-    }
+        iter ++;
+        if (iter != 0)  {
+            std::cout << iter << ": " << q << '\n';
+            std::cout << "residuals squares sum: " << calcResSq(q) << '\n';
+            std::cout << "delta Q: " << q - parameters->initialState << "\n";
+        }
+    } while (!shouldStop(q, lastQ));
 
     std::cout << "\nFinal: " << q << '\n';
 
