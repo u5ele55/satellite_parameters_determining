@@ -33,7 +33,7 @@ Iterator::~Iterator()
 Vector Iterator::makeIteration()
 {
     int N = measurements.size();
-    Vector steps = {.05, .05, .05, 1, 1, 1};
+    Vector steps = {.5, .5, .5, 10, 10, 10};
     int stateSize = q.size();
     int measurementSize = measurements[0].size();
     Matrix AT_Kinv(stateSize, measurementSize);
@@ -41,16 +41,17 @@ Vector Iterator::makeIteration()
     Matrix firstSum(stateSize, stateSize);
     Vector secondSum(stateSize);
 
-    for(int k = 2; k < N-2; k ++) {
+    int skippedCnt = 0;
+
+    for(int k = 0; k < N; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
-        if (k == 3) std::cout << "A : " << A << '\n';
-        if (A.size().first != measurementSize){
-            std::cout << "\tskipping " << k << ": " << measurements[k] << '\n';
+        if (A.size().first != measurementSize || A.size().second != stateSize){
+            // std::cout << "\tskipping " << k << ": " << measurements[k] << '\n';
+            skippedCnt ++;
             continue;
             throw std::runtime_error("Got too far from true state");
         }
-
         for(int i = 0; i < AT_Kinv.size().first; i ++) {
             for(int j = 0; j < AT_Kinv.size().second; j ++) {
                 AT_Kinv[i][j] = A[j][i] / diagonalK[j];
@@ -58,10 +59,15 @@ Vector Iterator::makeIteration()
         }
         AT_Kinv_A = AT_Kinv * A;
         firstSum += AT_Kinv_A;
+        
         Vector delta_r = measurements[k] - (*desFunctions[k])(q);
         secondSum += AT_Kinv * delta_r;
-        // std::cout << "q: " <<  q << '\n';
     }
+    if (skippedCnt >= N / 2) {
+        std::cout << "Skipped half of measurements. Quitting. \n";
+        return q;
+    }
+    std::cout << "Skipped: " << skippedCnt << '\n';
     std::cout << "\tfs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
     // std::cout << firstSum << "\n";
     auto fsInv = firstSum;
@@ -70,7 +76,6 @@ Vector Iterator::makeIteration()
     LinAlg::naiveInverse(fsInv);
     std::cout << "\t- " << fsInv * secondSum << "\n";
     q = q + fsInv * secondSum;
-
 
     return q;
 }
