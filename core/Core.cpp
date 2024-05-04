@@ -101,10 +101,11 @@ void Core::start()
     int iter = 0;
     do {
         lastQ = q;
+        std::cout << "\nIteration No. " << iter << '\n';
         q = iterator.makeIteration();
         iter ++;
         if (iter != 0)  {
-            std::cout << iter << ": " << q << '\n';
+            std::cout << "Q: " << q << '\n';
             std::cout << "residuals squares sum: " << calcResSq(q) << '\n';
             std::cout << "delta Q: " << q - parameters->initialState << "\n";
         }
