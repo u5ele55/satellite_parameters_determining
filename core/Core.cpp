@@ -49,9 +49,9 @@ void Core::start()
     
     // "worsen" initial state
     Vector initialGuess = {
-        parameters->vx + 50,
-        parameters->vy - 50,
-        parameters->vz + 50,
+        parameters->vx - 50,
+        parameters->vy + 50,
+        parameters->vz - 50,
         parameters->x + 5000,
         parameters->y - 5000,
         parameters->z + 5000,
@@ -101,9 +101,9 @@ void Core::start()
     int iter = 0;
     do {
         lastQ = q;
+        iter ++;
         std::cout << "\nIteration No. " << iter << '\n';
         q = iterator.makeIteration();
-        iter ++;
         if (iter != 0)  {
             std::cout << "Q: " << q << '\n';
             std::cout << "residuals squares sum: " << calcResSq(q) << '\n';
@@ -150,7 +150,7 @@ void Core::generateMeasurements(TaskParameters params)
         currentTime = unixToTime(t);
         Vector ecef = eci2ecef(x,y,z, currentTime);
 
-        const auto& designation = radioControl.targetTelescope(ecef);
+        const auto& designation = desNoiseApplier.targetTelescope(ecef);
         if (!started && designation.size() == 3) {
             started = true;
         }
