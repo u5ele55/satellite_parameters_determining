@@ -5,6 +5,7 @@
 
 class LinAlg {
 public:
+    /// @brief Rotate `src` about `axis` by `angle` radians. Rotation is clockwise from perspective if you look at `axis` end
     static Vector rotateAbout(const Vector& src, const Vector& axis, double angle);
     static double angle(const Vector& a, const Vector& b);
     static Vector projectionOnPlane(const Vector& src, const Vector& basis1, const Vector& basis2);
