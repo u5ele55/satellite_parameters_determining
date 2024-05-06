@@ -32,6 +32,7 @@ Iterator::~Iterator()
 #include <iostream>
 Vector Iterator::makeIteration()
 {
+    std::cout << "\t--Iteration log--\n";
     int N = measurements.size();
     Vector steps = {.5, .5, .5, 10, 10, 10};
     int stateSize = q.size();
@@ -50,7 +51,6 @@ Vector Iterator::makeIteration()
             // std::cout << "\tskipping " << k << ": " << measurements[k] << '\n';
             skippedCnt ++;
             continue;
-            throw std::runtime_error("Got too far from true state");
         }
         for(int i = 0; i < AT_Kinv.size().first; i ++) {
             for(int j = 0; j < AT_Kinv.size().second; j ++) {
@@ -64,10 +64,10 @@ Vector Iterator::makeIteration()
         secondSum += AT_Kinv * delta_r;
     }
     if (skippedCnt >= N / 2) {
-        std::cout << "Skipped half of measurements. Quitting. \n";
+        std::cout << "\tSkipped half of measurements. Quitting. \n";
         return q;
     }
-    std::cout << "Skipped: " << skippedCnt << '\n';
+    std::cout << "\tSkipped: " << skippedCnt << '\n';
     std::cout << "\tfs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
     // std::cout << firstSum << "\n";
     auto fsInv = firstSum;

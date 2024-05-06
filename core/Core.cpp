@@ -34,7 +34,7 @@ void Core::start()
         JD,
         initialPosition[0], initialPosition[1], initialPosition[2],
         initialSpeed[0], initialSpeed[1], initialSpeed[2],
-        {1, 1, 1}
+        {100, 7*angleSecond, 7*angleSecond}
     );
 
     FileOutputter<Vector> outputMeasurements("measurements.txt");
@@ -49,9 +49,9 @@ void Core::start()
     
     // "worsen" initial state
     Vector initialGuess = {
-        parameters->vx + 50,
-        parameters->vy - 50,
-        parameters->vz + 50,
+        parameters->vx - 50,
+        parameters->vy + 50,
+        parameters->vz - 50,
         parameters->x + 5000,
         parameters->y - 5000,
         parameters->z + 5000,
@@ -76,7 +76,6 @@ void Core::start()
     
     std::cout << "Starting with " << initialGuess << '\n';
     Vector q(6), lastQ(6);
-    q[0] = 1;
 
     auto shouldStop = [](const Vector &q, const Vector &lastQ) {
         Vector delta = lastQ-q;
@@ -99,14 +98,18 @@ void Core::start()
     };
 
     // iterating process
-    for (int j = 0; !shouldStop(q, lastQ); j ++) {
+    int iter = 0;
+    do {
         lastQ = q;
-        if (j != 0)  {
-            std::cout << j << ": " << q << '\n';
-            std::cout << "res q: " << calcResSq(q) << '\n';
-        }
+        iter ++;
+        std::cout << "\nIteration No. " << iter << '\n';
         q = iterator.makeIteration();
-    }
+        if (iter != 0)  {
+            std::cout << "Q: " << q << '\n';
+            std::cout << "residuals squares sum: " << calcResSq(q) << '\n';
+            std::cout << "delta Q: " << q - parameters->initialState << "\n";
+        }
+    } while (!shouldStop(q, lastQ));
 
     std::cout << "\nFinal: " << q << '\n';
 
@@ -147,7 +150,7 @@ void Core::generateMeasurements(TaskParameters params)
         currentTime = unixToTime(t);
         Vector ecef = eci2ecef(x,y,z, currentTime);
 
-        const auto& designation = radioControl.targetTelescope(ecef);
+        const auto& designation = desNoiseApplier.targetTelescope(ecef);
         if (!started && designation.size() == 3) {
             started = true;
         }
