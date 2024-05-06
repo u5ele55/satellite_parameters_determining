@@ -23,5 +23,14 @@ public:
     /// Components are [distance, azimuth, angle]
     Vector targetTelescope(const Vector& ecef);
 private:
-    double calculateAzimuth(Vector r_sat, Vector r_st);
+    /// @param r_sat Satellite coordinates in GSK
+    /// @return Satellite coordinates in Stations SK
+    Vector convertToLocalSK(Vector r_sat);
+    /// @param r_sat Satellite coordinates in Station SK 
+    double calculateAzimuth(Vector r_sat);
+    /// @param r_sat Satellite coordinates in Station SK 
+    double calculateTargetAngle(Vector r_sat);
+    /// @param r_sat Satellite coordinates in Station SK 
+    double calculateDistance(Vector r_sat);
+    
 };
