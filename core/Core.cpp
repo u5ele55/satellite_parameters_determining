@@ -28,13 +28,17 @@ void Core::start()
     Vector initialPosition = {6871257.864, 0.0, 0.0};
     Vector initialSpeed = {0.0, 3810, 6600};
     double angleSecond = M_PI/(180 * 3600);
+
+    Vector trueK = {1, 1, 1};
+    Vector noisedK = {100, 7*angleSecond, 7*angleSecond};
+
     auto parameters = new TaskParameters(
         telescopeBLH, 
         7 * M_PI / 180,
         JD,
         initialPosition[0], initialPosition[1], initialPosition[2],
         initialSpeed[0], initialSpeed[1], initialSpeed[2],
-        {100, 7*angleSecond, 7*angleSecond}
+        noisedK
     );
 
     FileOutputter<Vector> outputMeasurements("measurements.txt");
@@ -51,9 +55,9 @@ void Core::start()
     Vector initialGuess = {
         parameters->vx - 50,
         parameters->vy + 50,
-        parameters->vz - 50,
+        parameters->vz + 55,
         parameters->x + 5000,
-        parameters->y - 5000,
+        parameters->y - 5200,
         parameters->z + 5000,
     };
 
@@ -106,15 +110,19 @@ void Core::start()
         q = iterator.makeIteration();
         if (iter != 0)  {
             std::cout << "Q: " << q << '\n';
-            std::cout << "residuals squares sum: " << calcResSq(q) << '\n';
-            std::cout << "delta Q: " << q - parameters->initialState << "\n";
+            std::cout << "RSS: " << calcResSq(q) << '\n';
+            auto deltaQ = q - parameters->initialState;
+            Vector dR = deltaQ.subvector(0, 2);
+            Vector dV = deltaQ.subvector(3, 5);
+            
+            std::cout << "|dR| = " << dR.norm() << "  |dV| = " << dV.norm() << "\n";
         }
     } while (!shouldStop(q, lastQ));
 
     std::cout << "\nFinal: " << q << '\n';
 
     std::cout << "\nInit: " << parameters->initialState << '\n';
-    std::cout << "res init: " << calcResSq(parameters->initialState) << '\n';
+    std::cout << "RSS of init: " << calcResSq(parameters->initialState) << '\n';
     des = desGen.generate();
     std::vector<Vector> newDes;
     for (auto *d : des) {
@@ -141,7 +149,7 @@ void Core::generateMeasurements(TaskParameters params)
     int hour = 3600;
     bool started = false;
     int cnt = 0;
-    for (int i = 0; i <= 10 * hour; i += step) {
+    for (int i = 150; i <= 851; i += step) {
         double time = i;
         Vector state = solver.solve(time);
         double x = state[3], y = state[4], z = state[5];
