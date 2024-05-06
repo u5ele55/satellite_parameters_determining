@@ -69,6 +69,9 @@ public:
 
     /// @brief Appends `other` to the end of the current vector
     void extend(const Vector& other);
+ 
+    /// @return {Vector[l], ..., Vector[r]}
+    Vector subvector(int l, int r);
 
     friend std::ostream &operator<<(std::ostream &stream, const Vector &vec);
 };

@@ -120,6 +120,24 @@ void Vector::extend(const Vector &other)
     }
 }
 
+Vector Vector::subvector(int l, int r)
+{
+    if (r < l) {
+        throw std::runtime_error("Vector::subvector: r must be greater than or equal to l");
+    } 
+    if (l < 0 || r >= size()) {
+        throw std::runtime_error("Vector::subvector: (l,r) is out of boundaries");
+    }
+    
+    Vector ans(r-l+1);
+
+    for (int i = l; i < r+1; i ++) {
+        ans[i-l] = at(i);
+    }
+
+    return ans;
+}
+
 Vector Vector::operator-(const Vector &other) const {
     return *this + (-other);
 }
