@@ -32,4 +32,8 @@ public:
     static double matrixDeterminant(const Matrix& A);
 public:
     static Matrix Identity(int n);
+
+    static Matrix R_y(double angle);
+
+    static Matrix R_z(double angle);
 };
