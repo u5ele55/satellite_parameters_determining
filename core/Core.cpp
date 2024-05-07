@@ -21,7 +21,7 @@ void Core::start()
     Vector currentTime = {2023, 9, 18, 21, 11, 31, 0};
     double JD = timeToJD(currentTime);
     
-    Vector telescopeBLH{30, 30, 1};
+    Vector telescopeBLH{30, 45, 1};
 
     LinAlg::toRad(telescopeBLH[0]);
     LinAlg::toRad(telescopeBLH[1]);
@@ -53,9 +53,9 @@ void Core::start()
     
     // "worsen" initial state
     Vector initialGuess = {
-        parameters->vx - 50,
+        parameters->vx + 50,
         parameters->vy + 50,
-        parameters->vz + 55,
+        parameters->vz - 55,
         parameters->x + 5000,
         parameters->y - 5200,
         parameters->z + 5000,
@@ -69,7 +69,7 @@ void Core::start()
         guessDes.push_back( (*d)(initialGuess) );
     }
     outputDesGuess.output(guessDes);
-    
+    // return;
     // iterating setup
     Iterator iterator(
         measurements, 
@@ -109,13 +109,13 @@ void Core::start()
         std::cout << "\nIteration No. " << iter << '\n';
         q = iterator.makeIteration();
         if (iter != 0)  {
-            std::cout << "Q: " << q << '\n';
-            std::cout << "RSS: " << calcResSq(q) << '\n';
+            std::cout << "  Q: " << q << '\n';
+            std::cout << "  RSS: " << calcResSq(q) << '\n';
             auto deltaQ = q - parameters->initialState;
-            Vector dR = deltaQ.subvector(0, 2);
-            Vector dV = deltaQ.subvector(3, 5);
+            Vector dV = deltaQ.subvector(0, 2);
+            Vector dR = deltaQ.subvector(3, 5);
             
-            std::cout << "|dR| = " << dR.norm() << "  |dV| = " << dV.norm() << "\n";
+            std::cout << "  |dR| = " << dR.norm() << "  |dV| = " << dV.norm() << "\n";
         }
     } while (!shouldStop(q, lastQ));
 
@@ -146,10 +146,10 @@ void Core::generateMeasurements(TaskParameters params)
     Vector currentTime(7);
 
     double step = 10;
-    int hour = 3600;
-    bool started = false;
-    int cnt = 0;
-    for (int i = 150; i <= 851; i += step) {
+    int minute = 60;
+    int hour = 60 * minute;
+    
+    for (int i = 150; i <= 22 * minute; i += step) {
         double time = i;
         Vector state = solver.solve(time);
         double x = state[3], y = state[4], z = state[5];
@@ -159,17 +159,9 @@ void Core::generateMeasurements(TaskParameters params)
         Vector ecef = eci2ecef(x,y,z, currentTime);
 
         const auto& designation = desNoiseApplier.targetTelescope(ecef);
-        if (!started && designation.size() == 3) {
-            started = true;
-        }
-        if (started && designation.size() < 3) {
-            break;
-        }
-        if (started) cnt ++;
-        if (started) {
-            // std::cout << designation << '\n';
-            measurements.push_back(designation);
-            times.push_back(i);
-        }
+ 
+        measurements.push_back(designation);
+        times.push_back(i);
     }
+    
 }
