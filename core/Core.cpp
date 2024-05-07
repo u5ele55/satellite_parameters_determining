@@ -83,14 +83,14 @@ void Core::start()
 
     auto shouldStop = [](const Vector &q, const Vector &lastQ) {
         Vector delta = lastQ-q;
-        Vector v = {delta[0], delta[1], delta[2]};
-        Vector r = {delta[3], delta[4], delta[5]};
+        Vector v = delta.subvector(0, 2); // {delta[0], delta[1], delta[2]};
+        Vector r = delta.subvector(3, 5); // {delta[3], delta[4], delta[5]};
         return v.norm() < 1e-3 && r.norm() < 1e-3;
     };
     ResidualsFunctionGenerator resGen(measurements, times, parameters);
     auto resFs = resGen.generate();
     
-    auto calcResSq = [&resFs, &parameters](Vector st) {
+    auto calcRSS = [&resFs, &parameters](Vector st) {
         double r = 0;
         for (auto& res : resFs) {
             auto resV = (*res)(st);
@@ -110,7 +110,7 @@ void Core::start()
         q = iterator.makeIteration();
         if (iter != 0)  {
             std::cout << "  Q: " << q << '\n';
-            std::cout << "  RSS: " << calcResSq(q) << '\n';
+            std::cout << "  RSS: " << calcRSS(q) << '\n';
             auto deltaQ = q - parameters->initialState;
             Vector dV = deltaQ.subvector(0, 2);
             Vector dR = deltaQ.subvector(3, 5);
@@ -122,7 +122,7 @@ void Core::start()
     std::cout << "\nFinal: " << q << '\n';
 
     std::cout << "\nInit: " << parameters->initialState << '\n';
-    std::cout << "RSS of init: " << calcResSq(parameters->initialState) << '\n';
+    std::cout << "RSS of init: " << calcRSS(parameters->initialState) << '\n';
     des = desGen.generate();
     std::vector<Vector> newDes;
     for (auto *d : des) {
