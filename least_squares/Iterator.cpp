@@ -17,6 +17,9 @@ Iterator::Iterator(
     q(initialGuess),
     diagonalK(params->MSEs.size())
 {
+    if (diagonalK.size() != measurements[0].size()) {
+        throw std::runtime_error("Covarience matrix has inappropriate size");
+    }
     DesignationFunctionGenerator desGen(times, params);
     desFunctions = desGen.generate();
     for (int i = 0; i < diagonalK.size(); i ++) {
@@ -47,8 +50,13 @@ Vector Iterator::makeIteration()
     for(int k = 0; k < N; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
+        
+        // skipping measurements where azimuth could have discontinuity 
+        if (abs(measurements[k][1]) > 2 * M_PI - 0.5) {
+            skippedCnt ++;
+            continue;
+        }
         if (A.size().first != measurementSize || A.size().second != stateSize){
-            // std::cout << "\tskipping " << k << ": " << measurements[k] << '\n';
             skippedCnt ++;
             continue;
         }
@@ -67,7 +75,7 @@ Vector Iterator::makeIteration()
         std::cout << "\tSkipped half of measurements. Quitting. \n";
         return q;
     }
-    std::cout << "\tSkipped: " << skippedCnt << '\n';
+    if (skippedCnt) std::cout << "\tSkipped: " << skippedCnt << '\n';
     std::cout << "\tfs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
     // std::cout << firstSum << "\n";
     auto fsInv = firstSum;
