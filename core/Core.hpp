@@ -1,17 +1,12 @@
 #pragma once
 
 #include "Vector.hpp"
-#include "global/TaskParameters.hpp"
+#include "conditions/Conditions.hpp"
 
 class Core
 {
 private:
-    std::vector<Vector> measurements;
-    std::vector<double> times;
-
-    
+    Conditions conditions;
 public:
     void start();
-private:   
-    void generateMeasurements(TaskParameters params);
 };

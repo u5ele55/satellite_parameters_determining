@@ -22,34 +22,7 @@ void Core::start()
 {
     IConditionsGenerator *condGen = new FileConditionsGenerator("../datafiles/sample1.txt");
     
-    auto conditions = condGen->getConditions();
-
-    std::cout << conditions.times[34] << '\n';
-    std::cout << conditions.measurements[34] << '\n';
-    exit(0);
-
-    Vector currentTime = {2023, 9, 18, 21, 11, 31, 0};
-    double JD = timeToJD(currentTime);
-    
-    Vector telescopeBLH{30, 45, 1};
-
-    LinAlg::toRad(telescopeBLH[0]);
-    LinAlg::toRad(telescopeBLH[1]);
-    Vector initialPosition = {6871257.864, 0.0, 0.0};
-    Vector initialSpeed = {0.0, 3810, 6600};
-    double angleSecond = M_PI/(180 * 3600);
-
-    Vector trueK = {1, 1, 1};
-    Vector noisedK = {100, 7*angleSecond, 7*angleSecond};
-
-    auto parameters = new TaskParameters(
-        telescopeBLH, 
-        7 * M_PI / 180,
-        JD,
-        initialPosition[0], initialPosition[1], initialPosition[2],
-        initialSpeed[0], initialSpeed[1], initialSpeed[2],
-        noisedK
-    );
+    conditions = condGen->getConditions();
 
     FileOutputter<Vector> outputMeasurements("measurements.txt");
     FileOutputter<Vector> outputDesGuess("guess_measurements.txt");
@@ -57,38 +30,32 @@ void Core::start()
     FileOutputter<double> outputTime("time.txt");
     
     // generateMeasurements()
-    generateMeasurements(*parameters);
-    outputMeasurements.output(measurements);
-    outputTime.output(times);
+    outputMeasurements.output(conditions.measurements);
+    outputTime.output(conditions.times);
     
-    // // "worsen" initial state
-    Vector initialGuess = {};
-    //     parameters->vx + 50,
-    //     parameters->vy + 50,
-    //     parameters->vz - 55,
-    //     parameters->x + 5000,
-    //     parameters->y - 5200,
-    //     parameters->z + 5000,
-    // };
-
+    auto *params = conditions.parameters;
     // initial guess measurements
-    DesignationFunctionGenerator desGen(times, parameters);
+    std::cout << params->unixTimestamp << '\n';
+    std::cout << "guessDes\n";
+    DesignationFunctionGenerator desGen(conditions.times, params);
     auto des = desGen.generate();
     std::vector<Vector> guessDes;
     for (auto *d : des) {
-        guessDes.push_back( (*d)(initialGuess) );
+        std::cout << 1;
+        guessDes.push_back( (*d)(params->guessState) );
     }
     outputDesGuess.output(guessDes);
+    std::cout << "go iter\n";
     // return;
     // iterating setup
     Iterator iterator(
-        measurements, 
-        times,
-        initialGuess, 
-        parameters
+        conditions.measurements, 
+        conditions.times,
+        params->guessState, 
+        params
     );
     
-    std::cout << "Starting with " << initialGuess << '\n';
+    std::cout << "Starting with " << params->guessState << '\n';
     Vector q(6), lastQ(6);
 
     auto shouldStop = [](const Vector &q, const Vector &lastQ) {
@@ -97,15 +64,15 @@ void Core::start()
         Vector r = delta.subvector(3, 5); // {delta[3], delta[4], delta[5]};
         return v.norm() < 1e-3 && r.norm() < 1e-3;
     };
-    ResidualsFunctionGenerator resGen(measurements, times, parameters);
+    ResidualsFunctionGenerator resGen(conditions.measurements, conditions.times, params);
     auto resFs = resGen.generate();
     
-    auto calcRSS = [&resFs, &parameters](Vector st) {
+    auto calcRSS = [&resFs, &params](Vector st) {
         double r = 0;
         for (auto& res : resFs) {
             auto resV = (*res)(st);
             for (int i = 0; i < resV.size(); i ++)
-                resV[i] /= pow(parameters->MSEs[i], 2);
+                resV[i] /= pow(params->MSEs[i], 2);
             r += resV.dot(resV);
         }
         return r;
@@ -121,7 +88,7 @@ void Core::start()
         if (iter != 0)  {
             std::cout << "  Q: " << q << '\n';
             std::cout << "  RSS: " << calcRSS(q) << '\n';
-            auto deltaQ = q - parameters->initialState;
+            auto deltaQ = q - params->initialState;
             Vector dV = deltaQ.subvector(0, 2);
             Vector dR = deltaQ.subvector(3, 5);
             
@@ -131,47 +98,12 @@ void Core::start()
 
     std::cout << "\nFinal: " << q << '\n';
 
-    std::cout << "\nInit: " << parameters->initialState << '\n';
-    std::cout << "RSS of init: " << calcRSS(parameters->initialState) << '\n';
+    std::cout << "\nInit: " << params->initialState << '\n';
+    std::cout << "RSS of init: " << calcRSS(params->initialState) << '\n';
     des = desGen.generate();
     std::vector<Vector> newDes;
     for (auto *d : des) {
         newDes.push_back( (*d)(q) );
     }
     outputDesResult.output(newDes);
-}
-
-void Core::generateMeasurements(TaskParameters params)
-{
-    RadioTelescope telescope(params.telescopeBLH, params.tsVisionAngle);
-    TelescopeControl radioControl(telescope);
-    DesignationsNoiseApplier desNoiseApplier(radioControl, params.MSEs, 1);
-
-    auto *system = new SpacecraftECI(
-        Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
-        Constants::Earth::ANGULAR_SPEED, 
-        params.initialState
-    );
-    RK4Solver solver(system, 10); 
-    Vector currentTime(7);
-
-    double step = 10;
-    int minute = 60;
-    int hour = 60 * minute;
-    
-    for (int i = 150; i <= 22 * minute; i += step) {
-        double time = i;
-        Vector state = solver.solve(time);
-        double x = state[3], y = state[4], z = state[5];
-        long long t = i + params.unixTimestamp;
-        
-        currentTime = unixToTime(t);
-        Vector ecef = eci2ecef(x,y,z, currentTime);
-
-        const auto& designation = desNoiseApplier.targetTelescope(ecef);
- 
-        measurements.push_back(designation);
-        times.push_back(i);
-    }
-    
 }
