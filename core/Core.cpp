@@ -15,9 +15,19 @@
 
 #include "output/FileOutputter.hpp"
 
+#include "conditions/FileConditionsGenerator.hpp"
+
 #include <iostream>
 void Core::start()
 {
+    IConditionsGenerator *condGen = new FileConditionsGenerator("../datafiles/sample1.txt");
+    
+    auto conditions = condGen->getConditions();
+
+    std::cout << conditions.times[34] << '\n';
+    std::cout << conditions.measurements[34] << '\n';
+    exit(0);
+
     Vector currentTime = {2023, 9, 18, 21, 11, 31, 0};
     double JD = timeToJD(currentTime);
     
@@ -51,15 +61,15 @@ void Core::start()
     outputMeasurements.output(measurements);
     outputTime.output(times);
     
-    // "worsen" initial state
-    Vector initialGuess = {
-        parameters->vx + 50,
-        parameters->vy + 50,
-        parameters->vz - 55,
-        parameters->x + 5000,
-        parameters->y - 5200,
-        parameters->z + 5000,
-    };
+    // // "worsen" initial state
+    Vector initialGuess = {};
+    //     parameters->vx + 50,
+    //     parameters->vy + 50,
+    //     parameters->vz - 55,
+    //     parameters->x + 5000,
+    //     parameters->y - 5200,
+    //     parameters->z + 5000,
+    // };
 
     // initial guess measurements
     DesignationFunctionGenerator desGen(times, parameters);
