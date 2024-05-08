@@ -58,6 +58,36 @@ double dateToJDN(Vector date)
     return JDN;
 }
 
+Vector JDToTime(double JD) {
+    double julian = JD + 0.5;
+    long z = static_cast<long>(std::floor(julian));
+    double f = julian - z;
+
+    double a, alpha, b, c, d, e;
+
+    if (z < 2299161) {
+        a = z;
+    } else {
+        alpha = std::floor((z - 1867216.25) / 36524.25);
+        a = z + 1 + alpha - std::floor(alpha / 4);
+    }
+
+    b = a + 1524;
+    c = std::floor((b - 122.1) / 365.25);
+    d = std::floor(365.25 * c);
+    e = std::floor((b - d) / 30.6001);
+
+    double day = static_cast<int>(b - d - std::floor(30.6001 * e) + f);
+    double month = static_cast<int>(e < 14) ? e - 1 : e - 13;
+    double year = static_cast<int>(month > 2) ? c - 4716 : c - 4715;
+
+    double hour = static_cast<int>(f * 24);
+    double minute = static_cast<int>((f * 24 - hour) * 60);
+    double second = ((f * 24 - hour) * 60 - minute) * 60;
+
+    return {year, month, day, hour, minute, second};
+}
+
 double timeToJD(Vector date) {
     double JDN = dateToJDN(date);
     double h = date[3], m = date[4], s = date[5];
