@@ -14,29 +14,30 @@ Conditions FileConditionsGenerator::getConditions()
     double tsVisionAngle = 7;
     double angleSecond = M_PI/(180 * 3600);
     Vector MSEs = {100, 7*angleSecond, 7*angleSecond};
-    double startTime;
+    double JD;
     std::string trash;
 
     READ_TRASH(file, 4);
     file >> BLH[0] >> trash >> trash 
          >> BLH[1] >> trash >> trash 
          >> BLH[2] >> trash >> trash;
-    file >> startTime; 
+    file >> JD;
+    JD += 2400000.5; // MJD -> JD
     READ_TRASH(file, 8);
-    std::cout << BLH[0] << " " << BLH[1] << '\n';
+    // std::cout << BLH[0] << " " << BLH[1] << '\n';
 
     for (int i = 0; i < 6; i ++)
         file >> initialState[i];
     READ_TRASH(file, 4);
     for (int i = 0; i < 6; i ++)
         file >> guessState[i];
-    std::cout << initialState << ' ' << guessState << '\n';
+    // std::cout << initialState << ' ' << guessState << '\n';
     LinAlg::toRad(BLH[0]);
     LinAlg::toRad(BLH[1]);
     LinAlg::toRad(tsVisionAngle);
     Conditions conditions;
     conditions.parameters = new TaskParameters(
-        BLH, tsVisionAngle, startTime, initialState, guessState, MSEs
+        BLH, tsVisionAngle, JD, initialState, guessState, MSEs
     );
     int measCnt = 0;
     Vector measurement(3);
