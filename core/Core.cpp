@@ -18,6 +18,7 @@
 #include "conditions/FileConditionsGenerator.hpp"
 
 #include <iostream>
+
 void Core::start()
 {
     IConditionsGenerator *condGen = new FileConditionsGenerator("../datafiles/sample1.txt");
@@ -32,7 +33,7 @@ void Core::start()
     // generateMeasurements()
     outputMeasurements.output(conditions.measurements);
     outputTime.output(conditions.times);
-    
+
     auto *params = conditions.parameters;
     // initial guess measurements
     std::cout << params->unixTimestamp << '\n';
@@ -41,7 +42,6 @@ void Core::start()
     auto des = desGen.generate();
     std::vector<Vector> guessDes;
     for (auto *d : des) {
-        std::cout << 1;
         guessDes.push_back( (*d)(params->guessState) );
     }
     outputDesGuess.output(guessDes);
