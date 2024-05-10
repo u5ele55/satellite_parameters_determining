@@ -26,11 +26,17 @@ Conditions FileConditionsGenerator::getConditions()
     READ_TRASH(file, 8);
     // std::cout << BLH[0] << " " << BLH[1] << '\n';
 
-    for (int i = 0; i < 6; i ++)
+    for (int i = 3; i < 6; i ++)
+        file >> initialState[i];
+    for (int i = 0; i < 3; i ++)
         file >> initialState[i];
     READ_TRASH(file, 4);
-    for (int i = 0; i < 6; i ++)
+    for (int i = 3; i < 6; i ++)
         file >> guessState[i];
+    for (int i = 0; i < 3; i ++)
+        file >> guessState[i];
+    initialState *= 1000;
+    guessState *= 1000;
     // std::cout << initialState << ' ' << guessState << '\n';
     LinAlg::toRad(BLH[0]);
     LinAlg::toRad(BLH[1]);
