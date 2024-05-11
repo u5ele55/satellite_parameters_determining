@@ -31,17 +31,15 @@ Vector TelescopeControl::targetTelescope(const Vector &ecef)
     double distanceSqr = r.dot(r);
     
     auto local = convertToLocalSK(ecef);
-    // return local;
     
-        double dist = calculateDistance(local);
-        double az = calculateAzimuth(local);
-        double gamma = calculateTargetAngle(local);
+    double dist = calculateDistance(local);
+    double az = calculateAzimuth(local);
+    double gamma = calculateTargetAngle(local);
 
-            return {dist, az, gamma};
-    
-    return {}; 
+    return {dist, az, gamma};
 }
 
+#include <iostream>
 Vector TelescopeControl::convertToLocalSK(Vector r_sat)
 {
     auto rtBLH = telescope.getBLH();
@@ -53,26 +51,9 @@ Vector TelescopeControl::convertToLocalSK(Vector r_sat)
         { cosL*cosB,   sinL*cosB,   sinB},
         {-sinL,        cosL,        0}
     };
-    Vector UEN = R * (r_sat - rtCoord);
+    Vector local = R * (r_sat - rtCoord);
 
-    return UEN;
-
-    // auto E = LinAlg::Identity(3);
-    // Vector x_new = E[0], y_new = E[1], z_new = E[2];
-
-    // z_new = LinAlg::rotateAbout(z_new, x_new, -(rtBLH[0] - M_PI_2));
-    // y_new = LinAlg::rotateAbout(y_new, x_new, -(rtBLH[0] - M_PI_2));
-    
-    // double angle = LinAlg::angle(-rtCoord + Vector{0,0,Constants::Earth::MINOR_AXIS}, x_new);
-
-    // x_new = LinAlg::rotateAbout(x_new, z_new, -angle);
-    // y_new = LinAlg::rotateAbout(y_new, z_new, -angle);
-
-    // double st_x = r_sat.dot(x_new),
-    //        st_y = r_sat.dot(y_new),
-    //        st_z = r_sat.dot(z_new);
-
-    // return {st_x, st_z, st_y};
+    return local;
 }
 
 double TelescopeControl::calculateAzimuth(Vector r_sat)
@@ -85,15 +66,21 @@ double TelescopeControl::calculateAzimuth(Vector r_sat)
         if (z > 0)
             azimuth = M_PI_2;
         else 
-            azimuth = M_PI; // mb 3 * M_PI_2
+            azimuth = M_PI; // maybe 3 * M_PI_2
+        return azimuth;
     }
-    else {
-        azimuth = atan2(z, x);
-        if (azimuth < 0) {
-            azimuth = 2*M_PI + azimuth;
-        }
+    azimuth = atan2(z, x);
+    // if (x > 0) {
+    //     if (z < 0) {
+    //         azimuth += M_PI_2;
+    //     }
+    // }
+    // else {
+    //     azimuth += M_PI;
+    // }
+    if (azimuth < 0) {
+        azimuth = 2*M_PI + azimuth;
     }
-
     return azimuth;
 }
 
