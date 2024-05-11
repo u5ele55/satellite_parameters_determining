@@ -83,7 +83,7 @@ Vector JDToTime(double JD) {
 
     double hour = static_cast<int>(f * 24);
     double minute = static_cast<int>((f * 24 - hour) * 60);
-    double second = ((f * 24 - hour) * 60 - minute) * 60;
+    double second = static_cast<int>( ((f * 24 - hour) * 60 - minute) * 60 );
 
     return {year, month, day, hour, minute, second};
 }
