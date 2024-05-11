@@ -30,7 +30,7 @@ Vector ResidualsFunction::operator()(const Vector &arg)
     Vector state = solver.solve(time);
     double x = state[3], y = state[4], z = state[5];
 
-    Vector currentTime = JDToTime(time + params->JD);
+    Vector currentTime = JDToTime(time + params->JD / Constants::Earth::SECONDS_IN_DAY);
     Vector ecef = eci2ecef(x,y,z, currentTime);
 
     const Vector& designation = radioControl.targetTelescope(ecef);

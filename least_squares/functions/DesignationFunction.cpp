@@ -27,8 +27,8 @@ Vector DesignationFunction::operator()(const Vector &arg)
     RK4Solver solver(system, 10); 
     Vector state = solver.solve(time);
     double x = state[3], y = state[4], z = state[5];
-
-    Vector currentTime = JDToTime(time + params->JD);
+    
+    Vector currentTime = JDToTime(params->JD + time / Constants::Earth::SECONDS_IN_DAY);
     Vector ecef = eci2ecef(x,y,z, currentTime);
     auto des = radioControl.targetTelescope(ecef);
     // std::cout << arg << " -> " << ecef << " -> " << des <<'\n';
