@@ -22,11 +22,6 @@ TelescopeControl::TelescopeControl(
 Vector TelescopeControl::targetTelescope(const Vector &ecef)
 {
     // simplicified to sphere
-    double maxDistanceSqr = ecef.dot(ecef) - Constants::Earth::MINOR_AXIS * Constants::Earth::MINOR_AXIS;
-
-    auto r = ecef - rtCoord;
-    double distanceSqr = r.dot(r);
-    
     auto local = convertToLocalSK(ecef);
     
     double dist = calculateDistance(local)/1000;
