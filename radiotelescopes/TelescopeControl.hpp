@@ -6,7 +6,6 @@ class TelescopeControl
 private:
     RadioTelescope telescope;
     Vector rtCoord;
-    Vector planeNormal;
     bool convertToKm;
     bool convertToDegrees;
 public:

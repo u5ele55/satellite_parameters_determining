@@ -11,15 +11,12 @@ TelescopeControl::TelescopeControl(
     bool convertToKm, 
     bool convertToDegrees
 ) : telescope(telescope),
-    rtCoord(blh2ecef(telescope.getBLH())),
+    rtCoord(3), //blh2ecef(telescope.getBLH())),
     convertToDegrees(convertToDegrees),
-    convertToKm(convertToKm),
-    planeNormal(3)
+    convertToKm(convertToKm)
 {
-    double a = Constants::Earth::MAJOR_AXIS;
-    double b = Constants::Earth::MINOR_AXIS;
-    planeNormal = {rtCoord[0] / (a*a), rtCoord[1] / (a*a), rtCoord[2] / (b*b)};
-    planeNormal /= planeNormal.norm();
+    auto blh = telescope.getBLH();
+    rtCoord = pol2dec({blh[2] + Constants::Earth::RADIUS, blh[1], blh[0]});
 }
 
 Vector TelescopeControl::targetTelescope(const Vector &ecef)
@@ -32,7 +29,7 @@ Vector TelescopeControl::targetTelescope(const Vector &ecef)
     
     auto local = convertToLocalSK(ecef);
     
-    double dist = calculateDistance(local);
+    double dist = calculateDistance(local)/1000;
     double az = calculateAzimuth(local);
     double gamma = calculateTargetAngle(local);
 
