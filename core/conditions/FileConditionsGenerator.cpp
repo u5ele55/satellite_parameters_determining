@@ -13,7 +13,7 @@ Conditions FileConditionsGenerator::getConditions()
     Vector guessState(6);
     double tsVisionAngle = 7;
     double angleSecond = M_PI/(180 * 3600);
-    Vector MSEs = {100, 7*angleSecond, 7*angleSecond};
+    Vector MSEs = {1,1,1};//{100, 7*angleSecond, 7*angleSecond};
     double JD;
     std::string trash;
 

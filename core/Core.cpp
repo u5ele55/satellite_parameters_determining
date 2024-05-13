@@ -36,10 +36,18 @@ void Core::start()
 
     auto *params = conditions.parameters;
     // initial guess measurements
-    std::cout << params->unixTimestamp << '\n';
     std::cout << "guessDes\n";
     DesignationFunctionGenerator desGen(conditions.times, params);
     auto des = desGen.generate();
+    for(int i = 0; i < 15; i ++) {
+        auto d = (*des[i])(params->initialState);
+        std::cout << conditions.times[i] << ": " << d[0] << " " << d[1]*180*M_1_PI << " " << d[2]*180*M_1_PI << '\n';
+    }
+    return;
+    for (int i = 0; i < conditions.times.size(); i ++) {
+        conditions.measurements[i] = (*des[i])(params->initialState);
+    }
+
     std::vector<Vector> guessDes;
     for (auto *d : des) {
         guessDes.push_back( (*d)(params->guessState) );
