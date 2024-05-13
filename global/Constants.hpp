@@ -12,6 +12,7 @@ namespace Constants
         const double GEOCENTRIC_GRAVITATION_CONSTANT = 398600.4418e9;
         const double MAJOR_AXIS = 6378136; // in meters
         const double MINOR_AXIS = 6356752.3142; // in meters
+        const double RADIUS = 6371e3; // in meters
         const double SECONDS_IN_DAY = 86400;
     } // namespace Earth
     namespace Common
