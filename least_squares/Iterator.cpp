@@ -37,7 +37,8 @@ Vector Iterator::makeIteration()
 {
     std::cout << "\t--Iteration log--\n";
     int N = measurements.size();
-    Vector steps = {.5, .5, .5, 10, 10, 10};
+    double vs = q.subvector(0, 2).norm() * 0.01, rs = q.subvector(3, 5).norm() * 0.01;
+    Vector steps = {vs,vs,vs, rs,rs,rs};
     int stateSize = q.size();
     int measurementSize = measurements[0].size();
     Matrix AT_Kinv(stateSize, measurementSize);
@@ -47,10 +48,9 @@ Vector Iterator::makeIteration()
 
     int skippedCnt = 0;
 
-    for(int k = 0; k < N; k ++) {
+    for(int k = 1; k < N; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
-        
         // skipping measurements where azimuth could have discontinuity 
         if (abs(measurements[k][1]) > 2 * M_PI - 0.5) {
             skippedCnt ++;
