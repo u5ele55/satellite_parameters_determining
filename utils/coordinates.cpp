@@ -46,10 +46,9 @@ Vector ecef2blh(const Vector &ecef)
     return blh;
 }
 
-Vector eci2ecef(double x, double y, double z, Vector currentTime)
-{
-    double hrs = currentTime[3], mns = currentTime[4], scs = currentTime[5];
-    double UT = (hrs * 60 + mns) * 60 + scs;
+double greenwichSiderealTime(const Vector &currentTime) {
+    double hrs = currentTime[3], mns = currentTime[4], scs = currentTime[5], mlscs = currentTime[6];
+    double UT = (hrs * 60 + mns) * 60 + scs + mlscs / 1000.0;
     
     long long d = dateToJDN(currentTime) - 2451545;
     double t = d / 36525.0;
@@ -62,8 +61,29 @@ Vector eci2ecef(double x, double y, double z, Vector currentTime)
     double S = S_0 + UT;
     S *= Constants::Earth::ANGULAR_SPEED;
 
+    return S;
+}
+
+Vector eci2ecef(double x, double y, double z, Vector currentTime)
+{
+    double S = greenwichSiderealTime(currentTime);
+
     // rotation matrix for greenwich and absolute geocentric convertion
     double a = cos(S), b = sin(S);
+    double X, Y, Z = z;
+    
+    X = a*x + b*y;
+    Y = a*y - b*x;
+    
+    return {X, Y, Z};
+}
+
+Vector ecef2eci(double x, double y, double z, Vector currentTime)
+{
+    double S = greenwichSiderealTime(currentTime);
+
+    // rotation matrix for greenwich and absolute geocentric convertion
+    double a = cos(-S), b = sin(-S);
     double X, Y, Z = z;
     
     X = a*x + b*y;
