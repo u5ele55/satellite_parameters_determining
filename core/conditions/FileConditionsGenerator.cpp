@@ -1,5 +1,7 @@
 #include "FileConditionsGenerator.hpp"
 #include "LinAlg.hpp"
+#include "coordinates.hpp"
+#include "time.hpp"
 #define READ_TRASH(in, a) for(int i=0; i < a; i ++) in >> trash;
 
 FileConditionsGenerator::FileConditionsGenerator(const std::string &filename)
@@ -23,18 +25,29 @@ Conditions FileConditionsGenerator::getConditions()
          >> BLH[2] >> trash >> trash;
     file >> JD;
     JD += 2400000.5; // MJD -> JD
+    Vector currentTime = JDToTime(JD);
+    
     READ_TRASH(file, 8);
     // std::cout << BLH[0] << " " << BLH[1] << '\n';
+    double x,y,z, vx,vy,vz;
+    file >> x >> y >> z >> vx >> vy >> vz;
+    Vector pos(3), vel(3);
 
-    for (int i = 3; i < 6; i ++)
-        file >> initialState[i];
-    for (int i = 0; i < 3; i ++)
-        file >> initialState[i];
+    vel = ecef2eci(vx, vy, vz, currentTime);
+    pos = ecef2eci(x, y, z, currentTime);
+    for (int i = 0; i < 3; i ++) {
+        initialState[i] = vel[i];
+        initialState[i+3] = pos[i];
+    }
     READ_TRASH(file, 4);
-    for (int i = 3; i < 6; i ++)
-        file >> guessState[i];
-    for (int i = 0; i < 3; i ++)
-        file >> guessState[i];
+    file >> x >> y >> z >> vx >> vy >> vz;
+    vel = ecef2eci(vx, vy, vz, currentTime);
+    pos = ecef2eci(x, y, z, currentTime);
+    for (int i = 0; i < 3; i ++) {
+        guessState[i] = vel[i];
+        guessState[i+3] = pos[i];
+    }
+
     initialState *= 1000;
     guessState *= 1000;
     // std::cout << initialState << ' ' << guessState << '\n';
