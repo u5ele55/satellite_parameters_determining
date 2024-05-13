@@ -22,7 +22,7 @@ void SpacecraftECI::f(Vector &state, double time) const {
     state[5] = vz;
 }
 
-// [vx, x, vy, y, vz, z]
+// [vx, vy, vz, x, y, z]
 Vector SpacecraftECI::getInitialState() const {
     return initialState;
 }
