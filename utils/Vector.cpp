@@ -115,8 +115,8 @@ void Vector::extend(const Vector &other)
 {
     int oldN = n;
     resize(n + other.n);
-    for (int i = oldN; i < n; i ++) {
-        at(i) = other[i];
+    for (int i = oldN; i < oldN + other.n; i ++) {
+        at(i) = other[i - oldN];
     }
 }
 
