@@ -63,11 +63,23 @@ Vector eci2ecef(double x, double y, double z, Vector currentTime)
     S *= Constants::Earth::ANGULAR_SPEED;
 
     // rotation matrix for greenwich and absolute geocentric convertion
-    double a = cos(-S), b = sin(-S);
+    double a = cos(S), b = sin(S);
     double X, Y, Z = z;
     
     X = a*x + b*y;
     Y = a*y - b*x;
     
     return {X, Y, Z};
+}
+
+Vector pol2dec(const Vector &RLP)
+{
+    double r = RLP[0], l = RLP[1], p = RLP[2];
+    double r1 = r * cos(p);
+    
+    return {
+        r1 * cos(l),
+        r1 * sin(l),
+        r * sin(p)
+    };
 }
