@@ -30,7 +30,6 @@ struct TaskParameters {
     ) : telescopeBLH(telescopeBLH),
         tsVisionAngle(tsVisionAngle),
         JD(JD),
-        unixTimestamp((JD - 2440587.5) * Constants::Earth::SECONDS_IN_DAY), 
         initialState(initialState), MSEs(MSEs),
         guessState(guessState)
     {};
@@ -40,6 +39,5 @@ struct TaskParameters {
     Vector guessState;
     double tsVisionAngle;
     double JD;
-    double unixTimestamp;
     Vector MSEs;
 };
