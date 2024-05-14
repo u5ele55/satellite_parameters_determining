@@ -35,9 +35,10 @@ Iterator::~Iterator()
 #include <iostream>
 Vector Iterator::makeIteration()
 {
-    std::cout << "\t--Iteration log--\n";
+    // std::cout << "\t--Iteration log--\n";
     int N = measurements.size();
-    double vs = q.subvector(0, 2).norm() * 0.01, rs = q.subvector(3, 5).norm() * 0.01;
+    double vs = q.subvector(0, 2).norm() * 0.0001, 
+           rs = q.subvector(3, 5).norm() * 0.0001;
     Vector steps = {vs,vs,vs, rs,rs,rs};
     int stateSize = q.size();
     int measurementSize = measurements[0].size();
@@ -48,7 +49,7 @@ Vector Iterator::makeIteration()
 
     int skippedCnt = 0;
 
-    for(int k = 1; k < N; k ++) {
+    for(int k = 0; k < N; k ++) {
         PartialDerivativeMatrix genA(desFunctions[k], q, steps);
         Matrix A = genA.getMatrix();
         // skipping measurements where azimuth could have discontinuity 
@@ -68,7 +69,7 @@ Vector Iterator::makeIteration()
         AT_Kinv_A = AT_Kinv * A;
         firstSum += AT_Kinv_A;
         
-        Vector delta_r = measurements[k] - (*desFunctions[k])(q);
+        Vector delta_r = measurements[k] - genA.getStartMeasurement();
         secondSum += AT_Kinv * delta_r;
     }
     if (skippedCnt >= N / 2) {
@@ -76,13 +77,14 @@ Vector Iterator::makeIteration()
         return q;
     }
     if (skippedCnt) std::cout << "\tSkipped: " << skippedCnt << '\n';
-    std::cout << "\tfs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
+    // std::cout << "\tfs invertible? " << LinAlg::matrixDeterminant(firstSum) << '\n';
     // std::cout << firstSum << "\n";
     auto fsInv = firstSum;
-    // std::cout << '\t' << fsInv << '\n';
-    std::cout << '\t' << secondSum << '\n';
     LinAlg::naiveInverse(fsInv);
-    std::cout << "\t- " << fsInv * secondSum << "\n";
+    // std::cout << '\t' << fsInv << '\n';
+    // std::cout << '\t' << secondSum << '\n';
+    // std::cout << "\t- " << fsInv * secondSum << "\n";
+    // std::cout << "\tE : " << fsInv * firstSum << '\n';
     q = q + fsInv * secondSum;
 
     return q;
