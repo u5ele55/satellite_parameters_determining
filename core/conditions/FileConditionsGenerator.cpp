@@ -4,8 +4,9 @@
 #include "time.hpp"
 #define READ_TRASH(in, a) for(int i=0; i < a; i ++) in >> trash;
 
-FileConditionsGenerator::FileConditionsGenerator(const std::string &filename)
-    : file(filename)
+FileConditionsGenerator::FileConditionsGenerator(const std::string &filename, const Vector& MSEs)
+    : file(filename),
+    MSEs(MSEs)
 {}
 #include <iostream>
 Conditions FileConditionsGenerator::getConditions()
@@ -14,8 +15,6 @@ Conditions FileConditionsGenerator::getConditions()
     Vector initialState(6);
     Vector guessState(6);
     double tsVisionAngle = 7;
-    double angleSecond = M_PI/(180 * 3600);
-    Vector MSEs = {1,1,1};//{100, 7*angleSecond, 7*angleSecond};
     double JD;
     std::string trash;
 

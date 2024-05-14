@@ -16,12 +16,20 @@
 #include "output/FileOutputter.hpp"
 
 #include "conditions/FileConditionsGenerator.hpp"
+#include "conditions/NoisedMeasurementGenerator.hpp"
+#include "conditions/TrueMeasurementGenerator.hpp"
 
 #include <iostream>
 
 void Core::start()
 {
-    IConditionsGenerator *condGen = new FileConditionsGenerator("../datafiles/sample1.txt");
+    double angleSecond = M_PI/(180 * 3600);
+    Vector trueMSEs = {1,1,1}; 
+    Vector noiseMSEs = {100e-6, 7*angleSecond, 7*angleSecond};
+
+    Vector MSEs = noiseMSEs;
+    
+    IConditionsGenerator *condGen = new FileConditionsGenerator("../datafiles/sample1.txt", MSEs);
     
     conditions = condGen->getConditions();
 
@@ -35,22 +43,25 @@ void Core::start()
     outputTime.output(conditions.times);
 
     auto *params = conditions.parameters;
+    params->guessState += {150, -90, 250, -10000, 10000, -9000}; // just for tests, adding even more noise
     // initial guess measurements
-    std::cout << "guessDes\n";
     DesignationFunctionGenerator desGen(conditions.times, params);
     auto des = desGen.generate();
 
-    for (int i = 0; i < conditions.times.size(); i ++) {
-        conditions.measurements[i] = (*des[i])(params->initialState);
+    IMeasurementGenerator *measGenerator;
+    if ((params->MSEs - Vector{1,1,1}).norm() < 1e-9) {
+        measGenerator = new TrueMeasurementGenerator(conditions.parameters);
+    } else {
+        measGenerator = new NoisedMeasurementGenerator(conditions.parameters);
     }
+    conditions.measurements = measGenerator->generateMeasurements(
+        params->initialState, conditions.times
+    );
 
-    std::vector<Vector> guessDes;
-    for (auto *d : des) {
-        guessDes.push_back( (*d)(params->guessState) );
-    }
+    std::vector<Vector> guessDes = measGenerator->generateMeasurements(params->guessState, conditions.times);
     outputDesGuess.output(guessDes);
-    std::cout << "go iter\n";
-    // return;
+
+    std::cout << "Iteration process\n";
     // iterating setup
     Iterator iterator(
         conditions.measurements, 
@@ -104,10 +115,7 @@ void Core::start()
 
     std::cout << "\nInit: " << params->initialState << '\n';
     std::cout << "RSS of init: " << calcRSS(params->initialState) << '\n';
-    des = desGen.generate();
-    std::vector<Vector> newDes;
-    for (auto *d : des) {
-        newDes.push_back( (*d)(q) );
-    }
+    
+    std::vector<Vector> newDes = measGenerator->generateMeasurements(q, conditions.times);
     outputDesResult.output(newDes);
 }
