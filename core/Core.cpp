@@ -39,7 +39,6 @@ void Core::start()
     FileOutputter<double> outputTime("time.txt");
     
     // generateMeasurements()
-    outputMeasurements.output(conditions.measurements);
     outputTime.output(conditions.times);
 
     auto *params = conditions.parameters;
@@ -57,6 +56,7 @@ void Core::start()
     conditions.measurements = measGenerator->generateMeasurements(
         params->initialState, conditions.times
     );
+    outputMeasurements.output(conditions.measurements);
 
     std::vector<Vector> guessDes = measGenerator->generateMeasurements(params->guessState, conditions.times);
     outputDesGuess.output(guessDes);

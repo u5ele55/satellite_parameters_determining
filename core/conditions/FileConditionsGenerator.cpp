@@ -61,7 +61,7 @@ Conditions FileConditionsGenerator::getConditions()
 
     while (!file.eof()) {
         file >> time >> measurement[0] >> measurement[1] >> measurement[2] >> trash >> trash;
-        measurement[0] *= 1000;
+        // measurement[0] *= 1000;
         LinAlg::toRad(measurement[1]); LinAlg::toRad(measurement[2]);
         conditions.measurements.push_back(measurement);
         conditions.times.push_back(time);
