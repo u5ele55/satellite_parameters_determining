@@ -103,3 +103,15 @@ Vector pol2dec(const Vector &RLP)
         r * sin(p)
     };
 }
+
+Vector dec2pol(const Vector &eci)
+{
+    double x = eci[0], y = eci[1], z = eci[2];
+    double r1 = x*x+y*y;
+    double r = sqrt(r1+z*z);
+    
+    double l = atan2(y,x);
+    r1 = sqrt(r1);
+    double p = atan2(z,r1);
+    return {r, l, p};
+}

@@ -9,3 +9,8 @@ Vector ecef2eci(double x, double y, double z, Vector currentTime);
 /// @brief Перевод полярных координат в декартовы
 /// @param RLP Радиус, долгота, широта
 Vector pol2dec(const Vector &RLP);
+
+/// @brief Перевод декартовых координат в полярные
+/// @param eci Декартовы координаты
+/// @return Радиус, долгота, широта
+Vector dec2pol(const Vector &eci);
