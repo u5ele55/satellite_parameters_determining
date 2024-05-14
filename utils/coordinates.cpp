@@ -78,6 +78,11 @@ Vector eci2ecef(double x, double y, double z, Vector currentTime)
     return {X, Y, Z};
 }
 
+Vector eci2ecef(Vector eci, Vector currentTime)
+{
+    return eci2ecef(eci[0], eci[1], eci[2], currentTime);
+}
+
 Vector ecef2eci(double x, double y, double z, Vector currentTime)
 {
     double S = greenwichSiderealTime(currentTime);
