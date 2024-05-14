@@ -118,4 +118,43 @@ void Core::start()
     
     std::vector<Vector> newDes = measGenerator->generateMeasurements(q, conditions.times);
     outputDesResult.output(newDes);
+
+    // restoring satellite state on the moment of intersecting equator
+    Vector inverted = q;
+    auto *system = new SpacecraftECI(
+        Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
+        Constants::Earth::ANGULAR_SPEED, 
+        inverted
+    );
+    RK4Solver solver(system, 1);
+
+    double a = q.subvector(3,5).norm(); // approx. semi-major axis of an orbit
+    double T = 2 * M_PI * sqrt( pow(a, 3) / (Constants::Common::G * Constants::Earth::MASS) ); // period
+    double l = -T/2, r = 0;
+
+    auto polar = dec2pol(q.subvector(3,5));
+    bool isUnderEquator = polar[2] < 0; // latitude
+
+    auto check = [&isUnderEquator, &solver](double time) {
+        auto state = solver.solve(time);
+        auto polar = dec2pol(state.subvector(3,5));
+        return isUnderEquator ^ (polar[2] < 0);
+    };
+
+    std::cout << "Binary search from " << l << " to " << r << "; initially under equator: " << isUnderEquator << '\n';
+    while (r - l > 0.001) {
+        double midtime = (r+l)/2;
+        // std::cout << midtime << " " << check(midtime) << '\n';
+        if (check(midtime)) {
+            l = midtime;
+        } else {
+            r = midtime;
+        }
+    }
+    auto equatorTime = JDToTime(params->JD - l / Constants::Earth::SECONDS_IN_DAY);
+    
+    std::cout << "Intersecting equator at t = " << l << " = " << equatorTime << '\n';
+    Vector equatorPoint = solver.solve(l);
+    std::cout << "Equator point ECI: " << equatorPoint << '\n';
+    std::cout << "Equator point ECEF: " << eci2ecef(equatorPoint.subvector(3,5), equatorTime) << '\n';
 }
