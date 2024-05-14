@@ -21,10 +21,10 @@ TelescopeControl::TelescopeControl(
 
 Vector TelescopeControl::targetTelescope(const Vector &ecef)
 {
-    // simplicified to sphere
     auto local = convertToLocalSK(ecef);
     
-    double dist = calculateDistance(local)/1000;
+    double dist = calculateDistance(local) / 1e6; // m -> megameter
+    // division by 1e6 allows all the measurements be of the same order 
     double az = calculateAzimuth(local);
     double gamma = calculateTargetAngle(local);
 
@@ -71,7 +71,7 @@ double TelescopeControl::calculateAzimuth(Vector r_sat)
     //     azimuth += M_PI;
     // }
     if (azimuth < 0) {
-        azimuth = 2*M_PI + azimuth;
+        azimuth += 2*M_PI;
     }
     return azimuth;
 }
