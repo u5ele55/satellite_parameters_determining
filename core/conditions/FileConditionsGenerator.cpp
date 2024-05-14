@@ -47,8 +47,6 @@ Conditions FileConditionsGenerator::getConditions()
         guessState[i+3] = pos[i];
     }
 
-    initialState *= 1000;
-    guessState *= 1000;
     // std::cout << initialState << ' ' << guessState << '\n';
     LinAlg::toRad(BLH[0]);
     LinAlg::toRad(BLH[1]);

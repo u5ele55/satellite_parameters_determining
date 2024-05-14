@@ -43,7 +43,7 @@ void Core::start()
     outputTime.output(conditions.times);
 
     auto *params = conditions.parameters;
-    params->guessState += {150, -90, 250, -10000, 10000, -9000}; // just for tests, adding even more noise
+    params->guessState += Vector{150, -90, 250, -10000, 10000, -9000} / 1000; // just for tests, adding even more noise
     // initial guess measurements
     DesignationFunctionGenerator desGen(conditions.times, params);
     auto des = desGen.generate();

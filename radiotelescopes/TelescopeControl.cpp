@@ -23,8 +23,7 @@ Vector TelescopeControl::targetTelescope(const Vector &ecef)
 {
     auto local = convertToLocalSK(ecef);
     
-    double dist = calculateDistance(local) / 1e6; // m -> megameter
-    // division by 1e6 allows all the measurements be of the same order 
+    double dist = calculateDistance(local);
     double az = calculateAzimuth(local);
     double gamma = calculateTargetAngle(local);
 
