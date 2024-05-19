@@ -45,9 +45,6 @@ void Core::start()
     outputTime.output(conditions.times);
     // return;
     params->guessState += Vector{150, -90, 250, -10000, 10000, -9000} / 1000; // just for tests, adding even more noise
-    // initial guess measurements
-    DesignationFunctionGenerator desGen(conditions.times, params);
-    auto des = desGen.generate();
 
     IMeasurementGenerator *measGenerator;
     if ((params->MSEs - Vector{1,1,1}).norm() < 1e-9) {
@@ -130,7 +127,7 @@ void Core::start()
     );
     RK4Solver solver(system, 1);
 
-    double a = q.subvector(3,5).norm(); // approx. semi-major axis of an orbit
+    double a = q.subvector(3,5).norm() / 2; // approx. semi-major axis of an orbit
     double T = 2 * M_PI * sqrt( pow(a, 3) / (Constants::Common::G * Constants::Earth::MASS) ); // period
     double l = -T/2, r = 0;
 
