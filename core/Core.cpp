@@ -44,7 +44,7 @@ void Core::start()
     // generateMeasurements()
     outputTime.output(conditions.times);
     // return;
-    // params->guessState += Vector{150, -90, 250, -10000, 10000, -9000} / 1000; // just for tests, adding even more noise
+    params->guessState += Vector{150, -90, 250, -10000, 10000, -9000} / 1000; // just for tests, adding even more noise
     // initial guess measurements
     DesignationFunctionGenerator desGen(conditions.times, params);
     auto des = desGen.generate();
@@ -122,6 +122,7 @@ void Core::start()
     outputDesResult.output(newDes);
 
     // restoring satellite state on the moment of intersecting equator
+    std::cout << "\nSatellite intersecting equator\n";
     Vector inverted = q;
     auto *system = new SpacecraftECEF(
         Constants::Satellite::Sb,
@@ -142,7 +143,7 @@ void Core::start()
         return isUnderEquator ^ (polar[2] < 0);
     };
 
-    std::cout << "Binary search from " << l << " to " << r << "; initially under equator: " << isUnderEquator << '\n';
+    std::cout << "  Binary search from " << l << " to " << r << "; initially under equator: " << isUnderEquator << '\n';
     while (r - l > 0.001) {
         double midtime = (r+l)/2;
         // std::cout << midtime << " " << check(midtime) << '\n';
@@ -154,8 +155,8 @@ void Core::start()
     }
     auto equatorTime = JDToTime(params->JD - l / Constants::Earth::SECONDS_IN_DAY);
     
-    std::cout << "Intersecting equator at t = " << l << " = " << equatorTime << '\n';
+    std::cout << "  Intersecting equator at t = " << l << " = " << equatorTime << '\n';
     Vector equatorPoint = solver.solve(l);
-    std::cout << "Equator point ECEF: " << equatorPoint << '\n';
-    std::cout << "Equator point ECI: " << ecef2eci(equatorPoint.subvector(3,5), equatorTime) << '\n';
+    std::cout << "  Equator point ECEF: " << equatorPoint << '\n';
+    std::cout << "  Equator point ECI: " << ecef2eci(equatorPoint.subvector(3,5), equatorTime) << '\n';
 }
