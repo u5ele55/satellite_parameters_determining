@@ -12,7 +12,6 @@ FileConditionsGenerator::FileConditionsGenerator(const std::string &filename, co
 Conditions FileConditionsGenerator::getConditions()
 {
     Vector BLH(3);
-    Vector initialState(6);
     Vector guessState(6);
     double tsVisionAngle = 7;
     double JD;
@@ -30,30 +29,19 @@ Conditions FileConditionsGenerator::getConditions()
     // std::cout << BLH[0] << " " << BLH[1] << '\n';
     double x,y,z, vx,vy,vz;
     file >> x >> y >> z >> vx >> vy >> vz;
-    Vector pos(3), vel(3);
+    Vector initialStateECEF = {vx,vy,vz,x,y,z};
+    Vector initialStateECI = ecef2eci(initialStateECEF, currentTime);
 
-    vel = ecef2eci(vx, vy, vz, currentTime);
-    pos = ecef2eci(x, y, z, currentTime);
-    for (int i = 0; i < 3; i ++) {
-        initialState[i] = vel[i];
-        initialState[i+3] = pos[i];
-    }
     READ_TRASH(file, 4);
     file >> x >> y >> z >> vx >> vy >> vz;
-    vel = ecef2eci(vx, vy, vz, currentTime);
-    pos = ecef2eci(x, y, z, currentTime);
-    for (int i = 0; i < 3; i ++) {
-        guessState[i] = vel[i];
-        guessState[i+3] = pos[i];
-    }
-
-    // std::cout << initialState << ' ' << guessState << '\n';
+    guessState = {vx,vy,vz,x,y,z};
+    
     LinAlg::toRad(BLH[0]);
     LinAlg::toRad(BLH[1]);
     LinAlg::toRad(tsVisionAngle);
     Conditions conditions;
     conditions.parameters = new TaskParameters(
-        BLH, tsVisionAngle, JD, initialState, guessState, MSEs
+        BLH, tsVisionAngle, JD, initialStateECI, initialStateECEF, guessState, MSEs
     );
     int measCnt = 0;
     Vector measurement(3);

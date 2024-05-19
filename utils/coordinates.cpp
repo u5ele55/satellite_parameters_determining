@@ -80,7 +80,20 @@ Vector eci2ecef(double x, double y, double z, Vector currentTime)
 
 Vector eci2ecef(Vector eci, Vector currentTime)
 {
-    return eci2ecef(eci[0], eci[1], eci[2], currentTime);
+    if (eci.size() == 3) {
+        return eci2ecef(eci[0], eci[1], eci[2], currentTime);
+    }
+    else if (eci.size() == 6)
+    {
+        Vector ans(6);
+        for (int part = 0; part < 2; part ++) {
+            auto ecef = eci2ecef(eci[part*3], eci[part*3+1], eci[part*3+2], currentTime);
+            for (int i = 0; i < 3; i ++)
+                ans[part*3 + i] = ecef[i];
+        }
+        return ans;
+    }
+    return {};
 }
 
 Vector ecef2eci(double x, double y, double z, Vector currentTime)
@@ -95,6 +108,24 @@ Vector ecef2eci(double x, double y, double z, Vector currentTime)
     Y = a*y - b*x;
     
     return {X, Y, Z};
+}
+
+Vector ecef2eci(Vector ecef, Vector currentTime)
+{
+    if (ecef.size() == 3) {
+        return ecef2eci(ecef[0], ecef[1], ecef[2], currentTime);
+    }
+    else if (ecef.size() == 6)
+    {
+        Vector ans(6);
+        for (int part = 0; part < 2; part ++) {
+            auto eci = ecef2eci(ecef[part*3], ecef[part*3+1], ecef[part*3+2], currentTime);
+            for (int i = 0; i < 3; i ++)
+                ans[part*3 + i] = eci[i];
+        }
+        return ans;
+    }
+    return {};
 }
 
 Vector pol2dec(const Vector &RLP)

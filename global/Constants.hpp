@@ -12,7 +12,9 @@ namespace Constants
         const double GEOCENTRIC_GRAVITATION_CONSTANT = 398600.44; 
         const double MAJOR_AXIS = 6378.136; // in km
         const double MINOR_AXIS = 6356.7523142; // in km
-        const double RADIUS = 6371; // in km
+        const double RADIUS = 6371; // in km, radial radius
+        const double RADIUS_E = 6378.140;  // in km, equatorial radius
+        const double ALPHA_E = 1.0/298.257222101; // Earth polar compression coefficient
         const double SECONDS_IN_DAY = 86400;
     } // namespace Earth
     namespace Common

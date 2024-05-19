@@ -9,6 +9,7 @@
 #include "radiotelescopes/DesignationsNoiseApplier.hpp"
 #include "integration/solver/RK4Solver.hpp"
 #include "integration/system/SpacecraftECI.hpp"
+#include "integration/system/SpacecraftECEF.hpp"
 #include "least_squares/functions/DesignationFunctionGenerator.hpp"
 #include "least_squares/Iterator.hpp"
 #include "least_squares/functions/ResidualsFunctionGenerator.hpp"
@@ -33,6 +34,23 @@ void Core::start()
     
     conditions = condGen->getConditions();
 
+    auto *system = new SpacecraftECEF(
+        0.001,
+        conditions.parameters->initialStateECEF
+    );
+    auto *params = conditions.parameters;
+
+    RK4Solver solver(system, 1);
+    RadioTelescope telescope(params->telescopeBLH, params->tsVisionAngle);
+    TelescopeControl radioControl(telescope);
+
+    for(int i = 0; i < 15; i ++) {
+        double time = conditions.times[i];
+        auto state = solver.solve(time);
+        // std::cout << state << '\n';
+        std::cout << time << ": " << radioControl.targetTelescope(state.subvector(3,5)) << '\n';
+    }
+
     FileOutputter<Vector> outputMeasurements("measurements.txt");
     FileOutputter<Vector> outputDesGuess("guess_measurements.txt");
     FileOutputter<Vector> outputDesResult("result_measurements.txt");
@@ -40,9 +58,8 @@ void Core::start()
     
     // generateMeasurements()
     outputTime.output(conditions.times);
-
-    auto *params = conditions.parameters;
-    params->guessState += Vector{150, -90, 250, -10000, 10000, -9000} / 1000; // just for tests, adding even more noise
+    return;
+    // params->guessState += Vector{150, -90, 250, -10000, 10000, -9000} / 1000; // just for tests, adding even more noise
     // initial guess measurements
     DesignationFunctionGenerator desGen(conditions.times, params);
     auto des = desGen.generate();
@@ -54,7 +71,7 @@ void Core::start()
         measGenerator = new NoisedMeasurementGenerator(conditions.parameters);
     }
     conditions.measurements = measGenerator->generateMeasurements(
-        params->initialState, conditions.times
+        params->initialStateECI, conditions.times
     );
     outputMeasurements.output(conditions.measurements);
 
@@ -103,7 +120,7 @@ void Core::start()
         if (iter != 0)  {
             std::cout << "  Q: " << q << '\n';
             std::cout << "  RSS: " << calcRSS(q) << '\n';
-            auto deltaQ = q - params->initialState;
+            auto deltaQ = q - params->initialStateECI;
             Vector dV = deltaQ.subvector(0, 2);
             Vector dR = deltaQ.subvector(3, 5);
             
@@ -113,20 +130,20 @@ void Core::start()
 
     std::cout << "\nFinal: " << q << '\n';
 
-    std::cout << "\nInit: " << params->initialState << '\n';
-    std::cout << "RSS of init: " << calcRSS(params->initialState) << '\n';
+    std::cout << "\nInit: " << params->initialStateECI << '\n';
+    std::cout << "RSS of init: " << calcRSS(params->initialStateECI) << '\n';
     
     std::vector<Vector> newDes = measGenerator->generateMeasurements(q, conditions.times);
     outputDesResult.output(newDes);
 
     // restoring satellite state on the moment of intersecting equator
     Vector inverted = q;
-    auto *system = new SpacecraftECI(
-        Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
-        Constants::Earth::ANGULAR_SPEED, 
-        inverted
-    );
-    RK4Solver solver(system, 1);
+    // auto *system = new SpacecraftECI(
+    //     Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
+    //     Constants::Earth::ANGULAR_SPEED, 
+    //     inverted
+    // );
+    // RK4Solver solver(system, 1);
 
     double a = q.subvector(3,5).norm(); // approx. semi-major axis of an orbit
     double T = 2 * M_PI * sqrt( pow(a, 3) / (Constants::Common::G * Constants::Earth::MASS) ); // period
