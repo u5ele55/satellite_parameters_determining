@@ -22,5 +22,9 @@ namespace Constants
         const double G = 6.67430e-20; // km^3 sec^-2 kg^-1
         const double R = 287.05287;
     } // namespace Common
+    namespace Satellite
+    {
+        const double Sb = 0.001;
+    } // namespace Satellite
     
 } // namespace Constants

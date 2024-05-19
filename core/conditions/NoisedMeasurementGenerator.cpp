@@ -2,7 +2,7 @@
 
 #include "radiotelescopes/DesignationsNoiseApplier.hpp"
 #include "integration/solver/RK4Solver.hpp"
-#include "integration/system/SpacecraftECI.hpp"
+#include "integration/system/SpacecraftECEF.hpp"
 
 #include "coordinates.hpp"
 #include "time.hpp"
@@ -17,9 +17,8 @@ std::vector<Vector> NoisedMeasurementGenerator::generateMeasurements(const Vecto
     TelescopeControl radioControl(telescope);
     DesignationsNoiseApplier desNoiseApplier(radioControl, params->MSEs, 1);
 
-    auto *system = new SpacecraftECI(
-        Constants::Earth::GEOCENTRIC_GRAVITATION_CONSTANT,
-        Constants::Earth::ANGULAR_SPEED, 
+    auto *system = new SpacecraftECEF(
+        Constants::Satellite::Sb,
         startState
     );
     RK4Solver solver(system, 1); 
@@ -32,8 +31,8 @@ std::vector<Vector> NoisedMeasurementGenerator::generateMeasurements(const Vecto
         double x = state[3], y = state[4], z = state[5];
     
         Vector currentTime = JDToTime(params->JD + time / Constants::Earth::SECONDS_IN_DAY);
-        Vector ecef = eci2ecef(x,y,z, currentTime);
-        const auto& designation = desNoiseApplier.targetTelescope(ecef);
+        // Vector ecef = eci2ecef(x,y,z, currentTime);
+        const auto& designation = desNoiseApplier.targetTelescope({x,y,z});
         measurements.push_back(designation);
     }
 
