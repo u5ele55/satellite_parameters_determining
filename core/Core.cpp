@@ -142,7 +142,7 @@ void Core::start()
 
     auto check = [&isUnderEquator, &solver, &zeta](double time) {
         auto state = solver.solve(time);
-        return isUnderEquator ^ zeta(state.subvector(3,5));
+        return isUnderEquator != zeta(state.subvector(3,5));
     };
 
     std::cout << "  Binary search from " << l << " to " << r << "; initially under equator: " << isUnderEquator << '\n';
@@ -155,7 +155,7 @@ void Core::start()
             r = midtime;
         }
     }
-    auto equatorTime = JDToTime(params->JD - l / Constants::Earth::SECONDS_IN_DAY);
+    auto equatorTime = JDToTime(params->JD + l / Constants::Earth::SECONDS_IN_DAY);
     
     std::cout << "  Intersecting equator at t = " << l << " = " << equatorTime << '\n';
     Vector equatorPoint = solver.solve(l);
