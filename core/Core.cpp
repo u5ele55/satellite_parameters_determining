@@ -146,7 +146,7 @@ void Core::start()
     };
 
     std::cout << "  Binary search from " << l << " to " << r << "; initially under equator: " << isUnderEquator << '\n';
-    while (r - l > 0.001) {
+    while (r - l > 0.0001) {
         double midtime = (r+l)/2;
         // std::cout << midtime << " " << check(midtime) << '\n';
         if (check(midtime)) {
