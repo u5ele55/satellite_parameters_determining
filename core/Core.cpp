@@ -91,7 +91,11 @@ void Core::start()
         }
         return r;
     };
-
+    auto deltaQ = params->guessState - params->initialStateECEF;
+    Vector dV = deltaQ.subvector(0, 2);
+    Vector dR = deltaQ.subvector(3, 5);
+    
+    std::cout << "  |dR| = " << dR.norm() << "  |dV| = " << dV.norm() << "\n";
     // iterating process
     int iter = 0;
     do {
@@ -131,13 +135,15 @@ void Core::start()
     double T = 2 * M_PI * sqrt( pow(a, 3) / (Constants::Common::G * Constants::Earth::MASS) ); // period
     double l = -T/2, r = 0;
 
-    auto polar = dec2pol(q.subvector(3,5));
-    bool isUnderEquator = polar[2] < 0; // latitude
+    auto zeta = [](Vector xyz) {
+        auto polar = dec2pol(xyz);
+        return polar[2] < 0; // latitude
+    };
+    bool isUnderEquator = zeta(q.subvector(3,5));
 
-    auto check = [&isUnderEquator, &solver](double time) {
+    auto check = [&isUnderEquator, &solver, &zeta](double time) {
         auto state = solver.solve(time);
-        auto polar = dec2pol(state.subvector(3,5));
-        return isUnderEquator ^ (polar[2] < 0);
+        return isUnderEquator ^ zeta(state.subvector(3,5));
     };
 
     std::cout << "  Binary search from " << l << " to " << r << "; initially under equator: " << isUnderEquator << '\n';
