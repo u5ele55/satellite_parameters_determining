@@ -112,8 +112,8 @@ void Core::start()
 
     std::cout << "\nFinal: " << q << '\n';
 
-    std::cout << "\nInit: " << params->initialStateECEF << '\n';
-    std::cout << "RSS of init: " << calcRSS(params->initialStateECEF) << '\n';
+    std::cout << "\nTrue: " << params->initialStateECEF << '\n';
+    std::cout << "RSS of true: " << calcRSS(params->initialStateECEF) << '\n';
     
     std::vector<Vector> newDes = measGenerator->generateMeasurements(q, conditions.times);
     outputDesResult.output(newDes);
