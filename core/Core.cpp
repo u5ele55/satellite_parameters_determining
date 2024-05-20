@@ -136,8 +136,7 @@ void Core::start()
     double l = -T/2, r = 0;
 
     auto zeta = [](Vector xyz) {
-        auto polar = dec2pol(xyz);
-        return polar[2] < 0; // latitude
+        return xyz[2] < 0;
     };
     bool isUnderEquator = zeta(q.subvector(3,5));
 
